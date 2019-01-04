@@ -1,10 +1,12 @@
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/time.h> 
-#include <sys/resource.h>
-#include <pthread.h>
-#include <stdio.h>
+#ifndef __MALLOC_H__
+#define __MALLOC_H__
+# include <unistd.h>
+# include <stdlib.h>
+# include <sys/mman.h>
+# include <sys/time.h> 
+# include <sys/resource.h>
+# include <pthread.h>
+# include <stdio.h>
 
 # define TINY_SIZE 128 // 32
 # define SMALL_SIZE 4096 // 512
@@ -33,3 +35,5 @@ void free(void *ptr);
 void *mymalloc(size_t size);
 void *realloc(void *ptr, size_t size);
 void show_alloc_mem();
+
+#endif
