@@ -1,0 +1,7 @@
+fonction creation liste chainee
+fonctions interaction liste (alimenter la liste free ou alloc en fonction du status)
+fonction malloc
+fonction realloc
+fonction free
+fonction show_alloc_mem
+fonction fonctions de parcourt de liste
