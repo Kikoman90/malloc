@@ -23,6 +23,9 @@
 
 # define MALLOC_DEBUG 1
 
+// create pools of size = PAGESIZE (4096)
+// then only 
+
 typedef struct			s_meta
 {
     void                *addr;

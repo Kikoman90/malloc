@@ -1,7 +1,6 @@
 #include "../includes/malloc.h"
 
-t_mem   g_memory = {0, 0, 0};
-
+/*
 t_memchunck *memchunck_create(void)
 {
     t_memchunck *memchunck;
@@ -15,9 +14,10 @@ t_memchunck *memchunck_create(void)
     memchunck->next = NULL;
     
     return (memchunck);
-}
+}*/
 
-t_memchunck *link_chunck(t_memchunck *memchunck/*, size_t size*/)
+/*
+t_memchunck *link_chunck(t_memchunck *memchunck)
 {
     int i; 
     t_memchunck *save;
@@ -36,7 +36,9 @@ t_memchunck *link_chunck(t_memchunck *memchunck/*, size_t size*/)
     }
     return (save);
 }
+*/
 
+/*
 t_memzone *memzone_create(size_t size)
 {
     t_memzone *memzone;
@@ -55,3 +57,4 @@ t_memzone *memzone_create(size_t size)
 
     return (memzone);
 }
+*/

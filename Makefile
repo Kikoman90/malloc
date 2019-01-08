@@ -17,6 +17,9 @@ SRCS_DIR = sources
 OBJS_DIR = tmp
 
 SRCS = malloc.c \
+	   tmpmain.c \
+	   free.c \
+	   list_tool.c \
 
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:.c=.o))
 
@@ -29,7 +32,7 @@ all:
 	@make $(NAME)
 
 $(NAME): $(OBJS)
-	@$(CC) $(FLAGS) -shared -o $(HOSTLIB) @^
+	@$(CC) $(FLAGS) -shared -o $(HOSTLIB) $^
 	@ln -fs $(HOSTLIB) $(NAME)
 	@echo "\033[35;1m[malloc] compilation success"
 
