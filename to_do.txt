@@ -4,4 +4,4 @@ fonction malloc
 fonction realloc
 fonction free
 fonction show_alloc_mem
-fonction fonctions de parcourt de liste
+fonction fonctions de parcours de liste

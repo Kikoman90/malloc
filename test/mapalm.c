@@ -6,7 +6,7 @@
 /*   By: fsidler <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 16:29:07 by fsidler           #+#    #+#             */
-/*   Updated: 2019/01/07 16:30:21 by fsidler          ###   ########.fr       */
+/*   Updated: 2019/01/08 10:41:16 by fsidler          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,10 @@
 #include <limits.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
+//
+#include <string.h>
+#include <errno.h>
+//
 
 int main(int argc, char **argv) {
 
@@ -49,7 +53,7 @@ int main(int argc, char **argv) {
 			begin = clock();
 			if ((addr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) {
 				err = 1;
-				printf("failed\n");
+				printf("ERROR: %s\n", strerror(errno));
 			}
 			else
 				printf("success: %p\n", addr);
@@ -58,8 +62,9 @@ int main(int argc, char **argv) {
 			if (err == 0) {
 				printf("MUNMAP(%p):\n", addr);
 				begin = clock();
-				if (munmap(addr, size) == -1)
-					printf("failed\n");
+				if (munmap(addr, size) == -1) {
+					printf("ERROR: %s\n", strerror(errno));
+				}
 				else
 					printf("success\n");
 				end = clock();
