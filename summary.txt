@@ -1,0 +1,39 @@
+__SUMMARY__
+
+PAGESIZE = 4096 bytes
+
+MAX_ALLOC = 128
+
+SIZE_ZONE = sizeof(t_memzone) = 40 bytes
+SIZE_META = sizeof(t_meta) = 32 bytes
+
+TINY_CHUNCK_SIZE = 128 bytes
+SMALL_CHUNCK_SIZE = 4096 bytes
+LARGE_CHUNCK_SIZE = UINT_MAX = 4,294,967,296 bytes (2^32)
+
+TINY_ALLOC_MIN = 1 byte
+SMALL_ALLOC_MIN = 129 bytes
+LARGE_ALLOC_MIN = 4097 bytes
+
+tinyzone = TINY_CHUNCK_SIZE * MAX_ALLOC = 128^2 = 16,384 bytes
+tinyzone = 4 * PAGE_SIZE
+tinyzone.memory = 16,384 - SIZE_ZONE = 16,384 - 40 = 16,344 bytes
+
+
+smallzone = SMALL_CHUNCK_SIZE * MAX_ALLOC = 4096 * 128 = 524,288 bytes
+smallzone = 128 * PAGESIZE
+smallzone.memory = 524,288 - SIZE_ZONE = 524,248 bytes
+
+largezone = LARGE_CHUNCK_SIZE * MAX_ALLOC = 4,294,967,296 * 128 = 549,755,813,888 bytes ~= 512 gigabytes
+largezone =	134,217,728 * PAGESIZE
+largezone.memory = 549,755,813,888 - SIZE_ZONE = 549,755,813,848 bytes
+
+tinyzone.pool = (tinyzone.memory / TINY_ALLOC_MIN) * SIZE_META = 16,344 * 32 = 523,008 bytes
+tinyzone.pool ~= 128 * PAGE_SIZE
+
+smallzone.pool = ((smallzone.memory / SMALL_ALLOC_MIN) * SIZE_META) + sizeof(t_metapool) = (~)4064 * 32 + 24 = 130,072 bytes;
+smallzone.pool ~= 32 * PAGE_SIZE
+
+largezone.pool = (largezone.memory / LARGE_ALLOC_MIN) * SIZE_META = (~)134,184,968 * 32 = 4,293,918,976 bytes
+largezone.pool ~= 1,048,320 * PAGE_SIZE
+

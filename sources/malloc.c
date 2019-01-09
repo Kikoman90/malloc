@@ -2,10 +2,11 @@
 
 #include "malloc.h"
 
-t_mem			g_memory = {NULL, NULL, NULL, NULL};
+t_mem			g_memory = {NULL, NULL, NULL};
 pthread_mutex_t	g_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 /*
-void			ft_puterror(const char *err, const char *errno, )
+void			ft_puterror(const char *err, const char *errno, ...)
 {
 	char	*err;
 
@@ -29,63 +30,70 @@ void			*log_error_null(const char *log, char free)
 }
 */
 
-static t_meta	*create_metapool(size_t nb_elem)
+static t_metapool	*create_metapool(size_t nb_elem)
 {
-	t_meta	*pool;
-	t_meta	*tmp;
-	//void	*end;
-	t_meta	*end;
+	t_metapool	*pool;
+	t_meta		*tmp;
+	void		*end;
 
 	if ((pool = mmap(0, sizeof(t_meta) * nb_elem, PROT_READ | PROT_WRITE, \
 		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 	{
-		// if (DEBUG_MALLOC)
-		// print err
+		// if (DEBUG_MALLOC) ...
 		return (NULL);
 	}
-	end = pool + (nb_elem - 1);
-	printf("addr end = %p\n", end);
-	pool->prev = NULL;
-	tmp = pool;
-	nb_elem--;
-	while (tmp < end)
+	end = (void*)(pool + sizeof(t_meta) * (nb_elem - 1));
+	printf("start addr = %p\nend address = %p\n", (void*)pool, end);
+	tmp = pool->pool;
+	while ((void*)tmp < end)
 	{
+		printf("ok\n");
 		tmp->next = tmp + 1;
-		printf("tmp->next = %p\n", tmp->next);
 		tmp->next->prev = tmp;
-		printf("end = %p\n", end);
 		tmp = tmp->next; 
-		printf("cpt = %zu\n", --nb_elem);
 	}
-	printf("loop\n");
 	tmp->next = NULL;
+	pool->size = sizeof(t_meta) * nb_elem;
+	pool->prev = NULL;
 	return (pool);
 }
 
-int				metathrow(t_meta *elem)
+/*
+** put a t_meta back in the pool
+*/
+int				metathrow(t_metapool *pool, t_meta *elem)
 {
 	elem->prev = NULL;
-	g_memory.metapool->prev = elem;
-	elem->next = g_memory.metapool;
-	g_memory.metapool = elem;
+	elem->next = pool->pool;
+	pool->pool->prev = elem;
+	pool->pool = elem;
 	return (1);
 }
 
-t_meta			*metadip(void)
+/*
+** grab a t_meta from the pool 
+** NECESARRY TO MUNMAP POOLS AT A CERTAIN POINT -> needs to store size somewhere
+** (#define POOL_SIZE 4096) ?
+*/
+t_meta			*metadip(t_metapool **metapool, void *addr, size_t size)
 {
-	t_meta	*mt;
+	t_metapool	*pool;
+	t_meta		*new_meta;
 
-	if (!g_memory.metapool)
+	if (!*metapool || !(*metapool)->pool)
 	{
-		if (!(mt = create_metapool(4096)))
+		if (!(pool = create_metapool(4096)))
 			return (NULL);
-		g_memory.metapool = mt;
+		pool->next = *metapool;
+		*metapool = pool;
 	}
-	mt = g_memory.metapool;
-	g_memory.metapool->next->prev = NULL;
-	g_memory.metapool = g_memory.metapool->next;
-	// if metapool is empty -> munmap();
-	return (mt);
+	pool = *metapool;
+	new_meta = pool->pool;
+	new_meta->next->prev = NULL;
+	pool->pool = new_meta->next;
+	new_meta->addr = addr;
+	new_meta->size = size;
+	return (new_meta);
 }
 
 t_memzone		*create_memzone(size_t chunck_size)
@@ -93,31 +101,17 @@ t_memzone		*create_memzone(size_t chunck_size)
 	t_memzone	*zone;
 	t_meta		*free_elem;
 
-	printf("mma\n");
 	if ((zone = mmap(0, chunck_size * MAX_ALLOC, PROT_READ | PROT_WRITE, \
 		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 	{
-		// if (MALLOC_DEBUG)
-		//		print err
-		//		return (log_error_null(ft_strjoin("error (mmap): ", strerror(errno)), 1));
+		// if (MALLOC_DEBUG) ...
 		return (NULL);
 	}
+	zone->pool = create_metapool(3);
 	zone->alloc = NULL;
+	zone->free = metadip(&zone->pool, (void*)(zone + 1), (chunck_size * MAX_ALLOC) - sizeof(t_memzone));
+	zone->free->next = NULL;
 	zone->prev = NULL;
-	free_elem = metadip();
-	printf("METADIP\n");
-	free_elem->addr = zone + sizeof(t_memzone);
-	free_elem->size = chunck_size;
-	free_elem->prev = NULL;
-	printf("addr = %p\naddr+size = %p\n", free_elem->addr, free_elem->addr + free_elem->size);
-	while (free_elem->addr + free_elem->size < (void*)zone + chunck_size * MAX_ALLOC) {
-		free_elem->next = metadip();
-		free_elem->next->prev = free_elem;
-		free_elem = free_elem->next;
-		free_elem->addr = free_elem->prev->addr + chunck_size;
-		free_elem->size = chunck_size;
-	}
-	free_elem->next = NULL;
 	return (zone);
 }
 
@@ -156,13 +150,11 @@ void			*malloc_tiny_or_small(size_t size, size_t chunck_size, t_memzone **m_zone
 		}
 		zone = zone->next;
 	}
-	printf("zone is null\n");
 	if (!(zone = create_memzone(chunck_size)))
 		return (NULL);
-	printf("create memzone\n");
 	zone->next = *m_zone;
 	*m_zone = zone;
-	return (new_alloc(&(*m_zone)->free, &(*m_zone)->alloc, size));
+	return (new_alloc(&zone->free, &zone->alloc, size));
 }
 
 void			*malloc_large(size_t size)
@@ -171,28 +163,19 @@ void			*malloc_large(size_t size)
 	return (NULL);
 }
 
-// 2 mmap
-// 1 pour la pool
-// 1 pour la data
-// 1 debug zone ? for error messages and other stuff
+/*
+** il faut une fonction qui s'assure que la taille des zones est un multiple de pagesize()
+*/
 void			*mymalloc(size_t size)
 {
 	if (!size || size > LARGE_CHUNCK_SIZE)
 	{
-		// if (MALLOC_DEBUG)
-		//	ft_putendl_fd(2, "error: size is invalid (malloc)");
+		// if (MALLOC_DEBUG) ...
 		return (NULL);
 	}
-	//if (!g_memory.metapool && !(g_memory.metapool = create_metapool(61440)))
-	//	return (NULL);
 	if (size <= TINY_CHUNCK_SIZE)
 		return (malloc_tiny_or_small(size, TINY_CHUNCK_SIZE, &g_memory.tiny));
 	else if (size <= SMALL_CHUNCK_SIZE)
 		return (malloc_tiny_or_small(size, SMALL_CHUNCK_SIZE, &g_memory.small));
 	return (malloc_large(size));
-	/*
-	if ((mem = mmap(0, size + 1, PROT_READ | PROT_WRITE, \
-		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-		return (NULL);
-	return (ptr);*/
 }

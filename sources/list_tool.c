@@ -1,4 +1,4 @@
-#include "../includes/malloc.h"
+#include "malloc.h"
 
 t_mem   g_memory = {0, 0, 0};
 
@@ -44,12 +44,12 @@ t_memzone *memzone_create(size_t size)
     if ((memzone = mmap(0, sizeof(t_memzone), PROT_READ | PROT_WRITE, \
 		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 		return (NULL);
-    if ((memzone->adrr = mmap(0, size * MAX_ALLOC, PROT_READ | PROT_WRITE, \
+    /*if ((memzone->addr = mmap(0, size * MAX_ALLOC, PROT_READ | PROT_WRITE, \
 		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-		return (NULL);
+		return (NULL);*/
     memzone->alloc = NULL;
     memzone->free = NULL;
-    memzone->pool = link_chunck(NULL);
+    //memzone->pool = link_chunck(NULL);
     memzone->prev = NULL;
     memzone->next = NULL;
 

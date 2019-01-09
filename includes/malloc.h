@@ -14,14 +14,24 @@
 //utiliser <ncurses.h> (librairie graphique sur le terminal)
 
 # define TINY_CHUNCK_SIZE 128
-# define SMALL_CHUNCK_SIZE 4080
+# define SMALL_CHUNCK_SIZE 4096
 # define LARGE_CHUNCK_SIZE UINT_MAX // 2^32 octets
 
 # define MAX_ALLOC 128 //nb d'allocations max par zone
 
 # define SIZEOF_META 32
 
+
+
 # define MALLOC_DEBUG 1
+
+# define TINY 0
+# define SMALL 1
+# define LARGE 2
+# define OUTZONE -1
+
+# define TRUE 1
+# define FALSE 0
 
 // create pools of size = PAGESIZE (4096)
 // then only 
@@ -34,8 +44,17 @@ typedef struct			s_meta
     struct s_meta       *next;
 }						t_meta;
 
+typedef struct          s_metapool
+{
+    t_meta              *pool;
+    size_t              size;
+    struct s_metapool   *prev;
+    struct s_metapool   *next;
+}                       t_metapool;
+
 typedef struct          s_memzone
 {
+    t_metapool          *pool;
     t_meta              *alloc;
     t_meta              *free;
     struct s_memzone    *prev;
@@ -47,7 +66,6 @@ typedef struct			s_mem
     t_memzone			*tiny;
     t_memzone			*small;
     t_memzone			*large;
-    t_meta              *metapool;
 }						t_mem;
 
 t_mem					g_memory;
