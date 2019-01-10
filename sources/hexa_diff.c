@@ -81,7 +81,7 @@ void hexadiff2(void *addr1, void *addr2)
     print_addr(addr1);
     ft_putstr(" - ");
     print_addr(addr2);
-    ft_putstr(" ");
+    ft_putstr(" : ");
     ft_print_unsigned_long_long(addr1 - addr2);
     ft_putstr(" octets");
     ft_putchar('\n');
