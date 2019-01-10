@@ -1,89 +1,112 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <limits.h>
 
-int     upper_to_lowercase(char c)
+void	ft_putchar(char c)
 {
-    if(c >= 65 && c <= 90)
-        return(c + 32);
-    return(c);
-}        
-
-int convert_more_ten(char c)
-{
-    int val;
-
-    val = 0;
-    if (c == 'A')
-        val = 10;
-    else if (c == 'B')
-        val = 11;
-    else if (c == 'C')
-        val = 12;
-    else if (c == 'D')
-        val = 13;
-    else if (c == 'E')
-        val = 14;
-    else if (c == 'F')
-        val = 15;
-    else
-        val = -1;
-    return (val);
+	write(1, &c, 1);
 }
 
-int     ft_atoi_base_seize(const char *str)
+int     ft_strlen(char const *str)
 {
-        int i;
-        int neg;
-        int nb;
+    int i;
 
-        i = 0;
-        neg = 0;
-        nb = 0;
-        while (str[i] == '\f' || str[i] == '\r' || str[i] == '\t' || str[i] == '\v'
-        || str[i] == '\n' || str[i] == ' ')
-                i++;
-        if (str[i] == '-')
-                neg = 1;
-        if (str[i] == '-' || str[i] == '+')
-                i++;
-        while ((str[i] > 47 && str[i] < 58) || (str[i] >= 65 && str[i] <= 90) 
-            || (str[i] >= 97 && str[i] <= 122)) // 65 a 90 et 97 a 122
-        {
-            if(str[i] >= 65 && str[i] <= 90)
-            {
-                upper_to_lowercase(str[i]);
-                printf("test %d\n", str[i]);
-                nb = nb * 16 + convert_more_ten(str[i]);
-            }
-            else
-                nb = nb * 16 + (str[i] - 48);
-            printf("test2 %d\n", nb);
-            i++;
-        }
-        if (neg)
-                return (-nb);
-        return (nb);
+    i = 0;
+    while (str[i])
+        i++;
+    return (i);
 }
 
-int hexadiff(char *addr1, char *addr2)
+void	ft_putstr(char const *s)
 {
-    int i = 0;
-    int j = 0;
-
-    if (addr1[0] == '0' && addr1[1] == 'x')
-        i = 2;
-    if (addr2[0] == '0' && addr2[1] == 'x')
-        j = 2;
-    return (ft_atoi_base_seize(&addr1[i]) - ft_atoi_base_seize(&addr2[j]));
+	write(1, s, ft_strlen(s));
 }
+
+void    ft_print_unsigned_long_long(unsigned long long n)
+{
+        if (n > 9 && n <= ULLONG_MAX)
+            ft_print_unsigned_long_long(n / 10);
+        ft_putchar(n % 10 + '0');
+}
+
+char	*ft_itoa_base_seize(unsigned long long value, char *buff)
+{
+	unsigned long long res;
+	unsigned long long j = 0;
+	unsigned long long symb;
+	unsigned long long stock = 0;
+
+	j = 12;
+	if (value > ULLONG_MAX)	
+		return (NULL);
+	if (value == ULLONG_MAX)
+	{
+		stock = value % 10;
+		value /= 10;
+		j++;
+	}
+	res = value;
+	if (stock != 0)
+	{
+		buff[j] = stock + '0';
+		j--;
+	}
+	while (j > 1)
+	{
+		if ((res % 16) >= 10)
+			buff[j] = ((res % 16 - 9) + '@');	
+		else
+			buff[j] = ((res % 16) + '0');
+		res /= 16;
+		j--;
+	}
+	buff[0] = '0';
+	buff[1] = 'x';
+	buff[13] = '\0';
+	return (buff);
+}
+
+void print_addr(void *addr)
+{
+    char buff[14];
+
+    ft_putstr(ft_itoa_base_seize((unsigned long long)addr, buff));
+    return ;
+}
+
+void hexadiff2(void *addr1, void *addr2)
+{
+    ft_putstr("Start : ");
+    print_addr(addr1);
+    ft_putstr("\nEnd : ");
+    print_addr(addr2);
+    ft_putstr("\nIl y a ");
+    ft_print_unsigned_long_long(addr1 - addr2);
+    ft_putstr(" octet de difference !");
+    ft_putchar('\n');
+}
+
 
 int main(void)
 {
-   int octet;
+    int octet;
+    int str1[] = {1,2,3,4,5,6,0};
+    
+    void *test = &str1;
+    void *test2 = &str1[5];
 
-    octet = hexadiff("FFF", "AAA");
-    printf("diff 0x50 & 0x23 = %d\n", octet);
-    //printf("start = %p\n end = %p\n",tab,&tab[3]);
+    printf("%p\n", str1);
+    printf("%x\n", &str1);
+    //printf("%d\n", test);
+    //printf("%d\n", test2);
+   // printf("%d\n",((unsigned long long )test2 - (unsigned long long)test));
+    /*printf("%d\n",(test2 - test));*/
+    hexadiff2(test2,test);
+   /* printf("0 = %p\n4 = %p\n",&str[0], &str[4]);
+    octet = hexadiff(&str[0], &str[4]);
+    printf("diff = %d && octet diff = %d\n", octet, (octet/ 16));*/
+    //printf("start = %p\n end = %p\n",octet);
     return (0);
 }
