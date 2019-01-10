@@ -134,14 +134,9 @@ t_meta			*insert_alloc(t_metapool *pool, t_meta *meta, void *addr, size_t size) 
 
 void			*new_alloc(t_meta *elem, t_memzone *zone, size_t size)
 {
-	t_meta	*add;
-
-	if (elem->size > size)
-	{
-		if (!(add = insert_free(zone->pool, elem, \
-			(void*)((char*)elem->addr + size), elem->size - size)))
-			return (NULL);
-	}
+	if (elem->size > size && !insert_free(zone->pool, elem, \
+		(void*)((char*)elem->addr + size), elem->size - size))
+		return (NULL);
 	elem->size = size;
 	elem->used = 1;
 	return (elem->addr);
