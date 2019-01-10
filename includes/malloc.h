@@ -9,6 +9,7 @@
 # include <sys/mman.h>
 # include <pthread.h>
 
+# include <string.h> //
 # include <stdio.h> //
 
 //utiliser <ncurses.h> (librairie graphique sur le terminal)
@@ -19,27 +20,26 @@
 
 # define MAX_ALLOC 128 //nb d'allocations max par zone
 
-# define SIZEOF_META 32
-
-
+// getrlimit()
+// 9GB
+// if (getrlimit(RLIMIT_AS) < LARGE_CHUNCK_SIZE) USE RLIMIT !!!
+# define MAX_SIZE LARGE_CHUNCK_SIZE
 
 # define MALLOC_DEBUG 1
 
-# define TINY 0
-# define SMALL 1
-# define LARGE 2
-# define OUTZONE -1
-
-# define TRUE 1
-# define FALSE 0
-
-// create pools of size = PAGESIZE (4096)
-// then only 
+typedef enum            e_zone
+{
+    VOID = 0,
+    TINY,
+    SMALL,
+    LARGE
+}                       t_zone;
 
 typedef struct			s_meta
 {
     void                *addr;
     size_t              size;
+    char                used;
     struct s_meta       *prev;
     struct s_meta       *next;
 }						t_meta;
@@ -55,17 +55,19 @@ typedef struct          s_metapool
 typedef struct          s_memzone
 {
     t_metapool          *pool;
-    t_meta              *alloc;
-    t_meta              *free;
+    t_meta              *meta;
     struct s_memzone    *prev;
     struct s_memzone    *next;
 }                       t_memzone;
+//t_meta                *alloc;
+//t_meta                *free;
+// methode double
 
 typedef struct			s_mem
 {
     t_memzone			*tiny;
     t_memzone			*small;
-    t_memzone			*large;
+    t_meta              *large;
 }						t_mem;
 
 t_mem					g_memory;
@@ -75,5 +77,7 @@ void					myfree(void *ptr);
 void					*mymalloc(size_t size);
 void					*myrealloc(void *ptr, size_t size);
 void					show_alloc_mem();
+
+int                     hexadiff(char *addr1, char *addr2); //
 
 #endif

@@ -22,5 +22,6 @@ int     main()
         printf("ptr[%d] = %d\n", i, ptr[i]);
         i++;
     }
+    //myfree(ptr);
     return (0);
 }

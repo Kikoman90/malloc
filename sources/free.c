@@ -49,14 +49,14 @@ int search_ptr(void *ptr)
             start_addr = (void*)g_memory.small + sizeof(t_memzone);
         else if (i == LARGE)
             start_addr = (void*)g_memory.large + sizeof(t_memzone);
-        if (ptr >= start_addr && ptr <= start_addr + MAX_ALLOC * chunck_size)
+        if (ptr >= start_addr && ptr < start_addr + MAX_ALLOC * chunck_size)
             return (i);
         chunck_size = (i == 0) ? SMALL_CHUNCK_SIZE : LARGE_CHUNCK_SIZE;
         i++;
     }
     return (OUTZONE);
 }
-
+/*
 void    my_free(void *ptr)
 {
     if (manage_free_elem(search_ptr(ptr), ptr) == FALSE)
@@ -64,4 +64,51 @@ void    my_free(void *ptr)
     else
         printf("free a bien fonctionnee\n");
     return ;
+}
+*/
+
+t_zone  find_zone(void *ptr)
+{
+    
+
+    ret = TINY;
+    while (ret <= LARGE)
+    {
+        addr = (void*)&g_memory + 1;
+        (void*) + ret
+        (t_memzone*) + ret;
+        ret++;
+    }
+    return (VOID);
+}
+
+// (important checks if (!zone) if (!alloc)... )
+// FOR TINY AND SMALL
+// find meta corresponding to ptr
+// if found, remove to_free from alloc list, add it to the free_list
+
+void    myfree(void *ptr)
+{
+    t_memzone   m_zone;
+    t_zone      zone;
+    t_meta      *to_free;
+
+    if ((to_free = find_ptr_loc(ptr, g_memory.tiny))
+        free_tiny_or_small()
+
+    else {
+        
+
+    }
+
+
+    if (!(zone = find_zone(ptr)))
+    {
+        // if (DEBUG_MALLOC) ...
+        return (NULL);
+    }
+    if (zone <= SMALL)
+        free_tiny_or_small(ptr);
+    else
+        free_large(ptr);
 }

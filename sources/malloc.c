@@ -2,33 +2,8 @@
 
 #include "malloc.h"
 
-t_mem			g_memory = {NULL, NULL, NULL};
+t_mem			g_memory = {0, 0, 0};
 pthread_mutex_t	g_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-/*
-void			ft_puterror(const char *err, const char *errno, ...)
-{
-	char	*err;
-
-	if (log) {
-		//err = ft_strjoin("\033[31m;
-		write (2, "\033[31merror", )
-		write(2, err, ft_strlen(err));
-		free(err);
-	}
-}
-
-void			*log_error_null(const char *log, char free)
-{
-	if (MALLOC_DEBUG)
-	{
-		ft_puterror(log);
-		if (log && free)
-			free(log);
-	}
-	return (NULL);
-}
-*/
 
 static t_metapool	*create_metapool(size_t nb_elem)
 {
@@ -42,12 +17,11 @@ static t_metapool	*create_metapool(size_t nb_elem)
 		// if (DEBUG_MALLOC) ...
 		return (NULL);
 	}
-	end = (void*)(pool + sizeof(t_meta) * (nb_elem - 1));
-	printf("start addr = %p\nend address = %p\n", (void*)pool, end);
+	end = (void*)(pool + (nb_elem - 1));
+	pool->pool = (t_meta*)(pool + 1);
 	tmp = pool->pool;
 	while ((void*)tmp < end)
 	{
-		printf("ok\n");
 		tmp->next = tmp + 1;
 		tmp->next->prev = tmp;
 		tmp = tmp->next; 
@@ -61,39 +35,40 @@ static t_metapool	*create_metapool(size_t nb_elem)
 /*
 ** put a t_meta back in the pool
 */
-int				metathrow(t_metapool *pool, t_meta *elem)
+void			metathrow(t_metapool *pool, t_meta *elem)
 {
 	elem->prev = NULL;
 	elem->next = pool->pool;
 	pool->pool->prev = elem;
 	pool->pool = elem;
-	return (1);
 }
 
 /*
 ** grab a t_meta from the pool 
-** NECESARRY TO MUNMAP POOLS AT A CERTAIN POINT -> needs to store size somewhere
+** NECESARRY TO MUNMAP POOLS AT A CERTAIN POINT
 ** (#define POOL_SIZE 4096) ?
 */
-t_meta			*metadip(t_metapool **metapool, void *addr, size_t size)
+
+// t_metapool *pool or t_metapool **pool
+t_meta			*metadip(t_metapool *metapool, void *addr, size_t size)
 {
 	t_metapool	*pool;
-	t_meta		*new_meta;
+	t_meta		*elem;
 
-	if (!*metapool || !(*metapool)->pool)
+	if (!metapool || !metapool->pool)
 	{
 		if (!(pool = create_metapool(4096)))
 			return (NULL);
-		pool->next = *metapool;
-		*metapool = pool;
+		pool->next = metapool;
+		metapool = pool;
 	}
-	pool = *metapool;
-	new_meta = pool->pool;
-	new_meta->next->prev = NULL;
-	pool->pool = new_meta->next;
-	new_meta->addr = addr;
-	new_meta->size = size;
-	return (new_meta);
+	pool = metapool;
+	elem = pool->pool;
+	elem->next->prev = NULL;
+	pool->pool = elem->next;
+	elem->addr = addr;
+	elem->size = size;
+	return (elem);
 }
 
 t_memzone		*create_memzone(size_t chunck_size)
@@ -107,46 +82,85 @@ t_memzone		*create_memzone(size_t chunck_size)
 		// if (MALLOC_DEBUG) ...
 		return (NULL);
 	}
-	zone->pool = create_metapool(3);
-	zone->alloc = NULL;
-	zone->free = metadip(&zone->pool, (void*)(zone + 1), (chunck_size * MAX_ALLOC) - sizeof(t_memzone));
-	zone->free->next = NULL;
+	if (!(zone->pool = create_metapool(4096)))
+	{
+		// if (!munmap(zone))
+		// ... error
+		return (NULL);
+	}
+	if (!(zone->meta = metadip(zone->pool, (void*)(zone + 1), (chunck_size * MAX_ALLOC) - sizeof(t_memzone))))
+	{
+		// yeah yeah...
+		return (NULL);
+	}
+	zone->meta->next = NULL;
 	zone->prev = NULL;
 	return (zone);
 }
 
-//(*free_elem)->next = g_memory.metapool;
-//g_memory.metapool = *free_elem;
-void			*new_alloc(t_meta **free_elem, t_meta **alloc, size_t size)
-{
-	if ((*free_elem)->next)
-		(*free_elem)->next->prev = (*free_elem)->prev;
-	if ((*free_elem)->prev)
+t_meta			*insert_free(t_metapool *pool, t_meta *meta, void *addr, size_t size) {
+	t_meta	*insert;
+
+	if (!(insert = metadip(pool, addr, size)))
+		return (NULL);
+	if (meta)
 	{
-		(*free_elem)->prev->next = (*free_elem)->next;
-		(*free_elem)->prev = NULL;
+		if (meta->next)
+			meta->next->prev = insert;
+		insert->next = meta->next;
+		insert->prev = meta;
+		meta->next = insert;
 	}
-	(*alloc)->prev = *free_elem;
-	(*free_elem)->next = *alloc;
-	*alloc = *free_elem;
-	(*alloc)->size = size;
-	return ((*alloc)->addr);
+	insert->used = 0;
+	return (insert);
+}
+
+t_meta			*insert_alloc(t_metapool *pool, t_meta *meta, void *addr, size_t size) {
+	t_meta	*insert;
+
+	if (!(insert = metadip(pool, addr, size)))
+		return (NULL);
+	if (meta)
+	{
+		if (meta->next)
+			meta->next->prev = insert;
+		insert->next = meta->next;
+		insert->prev = meta;
+		meta->next = insert;
+	}
+	insert->used = 1;
+	return (insert);
+}
+
+void			*new_alloc(t_meta *elem, t_memzone *zone, size_t size)
+{
+	t_meta	*add;
+
+	if (elem->size > size)
+	{
+		if (!(add = insert_free(zone->pool, elem, \
+			(void*)((char*)elem->addr + size), elem->size - size)))
+			return (NULL);
+	}
+	elem->size = size;
+	elem->used = 1;
+	return (elem->addr);
 }
 
 void			*malloc_tiny_or_small(size_t size, size_t chunck_size, t_memzone **m_zone)
 {
 	t_memzone	*zone;
-	t_meta		*free_elem;
+	t_meta		*meta;
 
 	zone = *m_zone;
 	while (zone)
 	{
-		free_elem = zone->free;
-		while (free_elem)
+		meta = zone->meta;
+		while (meta)
 		{
-			if (free_elem->size >= size)
-				return (new_alloc(&free_elem, &zone->alloc, size));
-			free_elem = free_elem->next;
+			if (!meta->used && meta->size >= size)
+				return (new_alloc(meta, zone, size));
+			meta = meta->next;
 		}
 		zone = zone->next;
 	}
@@ -154,7 +168,7 @@ void			*malloc_tiny_or_small(size_t size, size_t chunck_size, t_memzone **m_zone
 		return (NULL);
 	zone->next = *m_zone;
 	*m_zone = zone;
-	return (new_alloc(&zone->free, &zone->alloc, size));
+	return (new_alloc(zone->meta, zone, size));
 }
 
 void			*malloc_large(size_t size)
