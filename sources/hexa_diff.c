@@ -76,7 +76,7 @@ void print_addr(void *addr)
     return ;
 }
 
-void hexadiff2(void *addr1, void *addr2)
+void hexadiff(void *addr1, void *addr2)
 {
     print_addr(addr1);
     ft_putstr(" - ");
@@ -85,27 +85,4 @@ void hexadiff2(void *addr1, void *addr2)
     ft_print_unsigned_long_long(addr1 - addr2);
     ft_putstr(" octets");
     ft_putchar('\n');
-}
-
-
-int main(void)
-{
-    int octet;
-    int str1[] = {1,2,3,4,5,6,0};
-    
-    void *test = &str1;
-    void *test2 = &str1[5];
-
-    printf("%p\n", str1);
-    printf("%x\n", &str1);
-    //printf("%d\n", test);
-    //printf("%d\n", test2);
-   // printf("%d\n",((unsigned long long )test2 - (unsigned long long)test));
-    /*printf("%d\n",(test2 - test));*/
-    hexadiff2(test2,test);
-   /* printf("0 = %p\n4 = %p\n",&str[0], &str[4]);
-    octet = hexadiff(&str[0], &str[4]);
-    printf("diff = %d && octet diff = %d\n", octet, (octet/ 16));*/
-    //printf("start = %p\n end = %p\n",octet);
-    return (0);
 }
