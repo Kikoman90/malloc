@@ -103,14 +103,14 @@ t_meta			*insert_free(t_metapool *pool, t_meta *meta, void *addr, size_t size) {
 
 	if (!(insert = metadip(pool, addr, size)))
 		return (NULL);
-	if (meta)
-	{
-		if (meta->next)
-			meta->next->prev = insert;
-		insert->next = meta->next;
-		insert->prev = meta;
-		meta->next = insert;
-	}
+	//if (meta)
+	//{
+	if (meta->next)
+		meta->next->prev = insert;
+	insert->next = meta->next;
+	insert->prev = meta;
+	meta->next = insert;
+	//}
 	insert->used = 0;
 	return (insert);
 }
@@ -120,14 +120,14 @@ t_meta			*insert_alloc(t_metapool *pool, t_meta *meta, void *addr, size_t size) 
 
 	if (!(insert = metadip(pool, addr, size)))
 		return (NULL);
-	if (meta)
-	{
-		if (meta->next)
-			meta->next->prev = insert;
-		insert->next = meta->next;
-		insert->prev = meta;
-		meta->next = insert;
-	}
+	//if (meta)
+	//{
+	if (meta->next)
+		meta->next->prev = insert;
+	insert->next = meta->next;
+	insert->prev = meta;
+	meta->next = insert;
+	//}
 	insert->used = 1;
 	return (insert);
 }

@@ -16,13 +16,9 @@ int     main()
     char    *ptr2;
     long    *ptr3;
     int     *ptr4;
-    size_t  size_ptr[4] = {4,1, 8, 4};
+    size_t  size_ptr[4] = {4, 1, 8, 4};
 
-    if (!(ptr1 = (int*)mymalloc(sizeof(int) * 10)))
-    {
-        printf("malloc failed\n");
-        return (0);
-    }
+    ptr1 = (int*)mymalloc(sizeof(int) * 10);
     ptr2 = (char*)mymalloc(sizeof(char) * 10);
     ptr3 = (long*)mymalloc(sizeof(long) * 10);
     ptr4 = (int*)mymalloc(sizeof(int) * 10);
@@ -37,20 +33,15 @@ int     main()
     }
     //display_memory();
     myfree(ptr1);
-    display_meta(g_memory.tiny->meta, size_ptr, 1);
+    display_meta(g_memory.tiny->meta, size_ptr, 0);
     myfree(ptr3);
-    display_meta(g_memory.tiny->meta, size_ptr, 1);
-    printf("free/alloc/free/alloc/free\n");
+    display_meta(g_memory.tiny->meta, size_ptr, 0);
     myfree(ptr2);
+    display_meta(g_memory.tiny->meta, size_ptr, 0);
     myfree(ptr4);
-    display_meta(g_memory.tiny->meta, size_ptr, 1);
-    //display_meta(g_memory.tiny->meta, size_ptr, 1);
-    /*i = 0;
-    while (i < 10)
-    {
-        printf("ptr[%d] = %d\n", i, ptr[i]);
-        i++;
-    }*/
-    //myfree(ptr);
+    //myfree(ptr4 + 1);
+    if (g_memory.tiny) {
+        display_meta(g_memory.tiny->meta, size_ptr, 0);
+    }
     return (0);
 }

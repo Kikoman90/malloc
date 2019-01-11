@@ -28,6 +28,7 @@ void    display_meta(t_meta *meta, size_t *nb_bytes, int display_mem)
     t_meta  *list;
     int i  = 0;
 
+    printf("**********************_DISPLAY_META_*************************\n");
     list = meta;
     while (list)
     {
@@ -42,4 +43,5 @@ void    display_meta(t_meta *meta, size_t *nb_bytes, int display_mem)
         i++;
         list = list->next;
     }
+    printf("\n");
 }
