@@ -20,20 +20,19 @@
 
 # define MAX_ALLOC 128 //nb d'allocations max par zone
 
+# define TRUE 1
+# define FALSE 0
+
+# define TINY 1
+# define SMALL 2
+# define LARGE 3
+
 // getrlimit()
 // 9GB
 // if (getrlimit(RLIMIT_AS) < LARGE_CHUNCK_SIZE) USE RLIMIT !!!
 # define MAX_SIZE LARGE_CHUNCK_SIZE
 
 # define MALLOC_DEBUG 1
-
-typedef enum            e_zone
-{
-    VOID = 0,
-    TINY,
-    SMALL,
-    LARGE
-}                       t_zone;
 
 typedef struct			s_meta
 {
@@ -78,6 +77,9 @@ void					*mymalloc(size_t size);
 void					*myrealloc(void *ptr, size_t size);
 void					show_alloc_mem();
 
-int                     hexadiff(char *addr1, char *addr2); //
+void			        metathrow(t_metapool *pool, t_meta *elem);
 
+void	                ft_putchar(char c);
+int                     hexadiff(void *addr1, void *addr2); //
+void                    display_meta(t_meta *meta, size_t nb_bytes, int display_mem);
 #endif

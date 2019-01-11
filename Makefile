@@ -19,6 +19,7 @@ OBJS_DIR = tmp
 SRCS = malloc.c \
 	   tmpmain.c \
 	   free.c \
+	   display.c \
 
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:.c=.o))
 

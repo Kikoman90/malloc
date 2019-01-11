@@ -2,113 +2,118 @@
 
 #include "malloc.h"
 
-int     move_ptr_to_pool(void *ptr)
+void    merge_chuncks(t_meta *first, t_meta *second, t_metapool *pool)
 {
+    first->size += second->size;
+    if (second->next)
+        second->next->prev = first;
+    first->next = second->next;
+    metathrow(pool, second);
+}
+
+int     coalesce_chuncks(t_memzone *m_zone, size_t chunck_size, t_meta *elem)
+{
+    t_meta  *tmp;
+
+    elem->used = 0;
+    if (elem->next && !elem->next->used)
+        merge_chuncks(elem, elem->next, m_zone->pool);
+    if (elem->prev && !elem->prev->used)
+        merge_chuncks(elem->prev, elem->next, m_zone->pool);
+    if (!elem->next && !elem->prev)
+    {
+        if (munmap(m_zone->pool, m_zone->pool->size) == -1)
+            return (FALSE);
+        if (munmap(m_zone, chunck_size * MAX_ALLOC) == -1)
+            return (FALSE);
+        printf("munmap success\n");
+    }
     return (TRUE);
 }
 
-int     manage_free_elem(short type, void *ptr)
+int     free_elem(void *ptr, t_memzone *m_zone, t_meta *elem, \
+    size_t chunck_size)
 {
-    t_memzone *save_g;
-    t_meta *save_meta;
-
-    save_meta = NULL;
-    save_g = g_memory.tiny;
-    if (ptr == NULL || type == -1)
-        return (FALSE);
-    save_g = (type == SMALL) ? g_memory.small : save_g;
-    save_g = (type == LARGE) ? g_memory.large : save_g;
-    while (save_g->next)
+    while (elem)
     {
-        save_meta = save_g->alloc;
-        while (save_meta->next)
+        if (ptr == elem->addr)
         {
-            if (save_meta->addr == ptr)
-                return(move_ptr_to_pool(save_meta));
-            save_meta = save_meta->next;
+            if (m_zone)
+            {
+                elem->used = 0;
+                return (coalesce_chuncks(m_zone, chunck_size, elem));
+            }
+            else
+            {
+                // free_large(elem);
+                if (munmap(elem->addr, elem->size) == -1)
+                {
+                    // printf(error munmap);
+                    return (FALSE);
+                }
+                if (elem->prev)
+                    elem->prev->next = elem->next;
+                if (elem->next)
+                    elem->next->prev = elem->prev;
+                if (munmap(elem, sizeof(t_meta)) == -1)
+                {
+                    // printf(error munmap);
+                    return (FALSE);
+                }
+                return (TRUE);
+            }
         }
-        save_g = save_g->next;
+        else if (ptr > elem->addr && (char*)ptr < (char*)elem->addr + elem->size)
+            return (FALSE);
+        elem = elem->next;
     }
     return (FALSE);
 }
 
-int search_ptr(void *ptr)
+t_meta  *ptr_in_zones(void *ptr, t_memzone **m_zone, size_t *chunck_size)
 {
-    short   i;
-    int     chunck_size;
-    void    *start_addr;
+    short       type;
+    void        *start_addr;
+    t_meta      *meta;
     
-    i = 0;
-    start_addr = NULL;
-    chunck_size = TINY_CHUNCK_SIZE;
-    while (i < 3)
+    type = TINY;
+    while (type < LARGE)
     {
-        if (i == TINY)
-            start_addr = (void*)g_memory.tiny + sizeof(t_memzone);
-        else if (i == SMALL)
-            start_addr = (void*)g_memory.small + sizeof(t_memzone);
-        else if (i == LARGE)
-            start_addr = (void*)g_memory.large + sizeof(t_memzone);
-        if (ptr >= start_addr && ptr < start_addr + MAX_ALLOC * chunck_size)
-            return (i);
-        chunck_size = (i == 0) ? SMALL_CHUNCK_SIZE : LARGE_CHUNCK_SIZE;
-        i++;
+        *chunck_size = (type == TINY) ? TINY_CHUNCK_SIZE : SMALL_CHUNCK_SIZE;
+        *m_zone = (type == TINY) ? g_memory.tiny : g_memory.small;
+        while (*m_zone)
+        {
+            start_addr = (void*)(*m_zone + 1);
+            if (ptr >= start_addr && ptr < start_addr + MAX_ALLOC * *chunck_size)
+                return ((*m_zone)->meta);
+            *m_zone = (*m_zone)->next;
+        }
+        type++;
     }
-    return (OUTZONE);
-}
-/*
-void    my_free(void *ptr)
-{
-    if (manage_free_elem(search_ptr(ptr), ptr) == FALSE)
-        printf("error: free() // Pointer non allouee !\n");
-    else
-        printf("free a bien fonctionnee\n");
-    return ;
-}
-*/
-
-t_zone  find_zone(void *ptr)
-{
-    
-
-    ret = TINY;
-    while (ret <= LARGE)
+    meta = g_memory.large;
+    while (meta)
     {
-        addr = (void*)&g_memory + 1;
-        (void*) + ret
-        (t_memzone*) + ret;
-        ret++;
+        if (ptr == meta->addr)
+            return (meta);
+        meta = meta->next;
     }
-    return (VOID);
+    return (NULL);
 }
-
-// (important checks if (!zone) if (!alloc)... )
-// FOR TINY AND SMALL
-// find meta corresponding to ptr
-// if found, remove to_free from alloc list, add it to the free_list
 
 void    myfree(void *ptr)
 {
-    t_memzone   m_zone;
-    t_zone      zone;
-    t_meta      *to_free;
+    t_meta      *meta;
+    t_memzone   *m_zone;
+    size_t      chunck_size;
 
-    if ((to_free = find_ptr_loc(ptr, g_memory.tiny))
-        free_tiny_or_small()
-
-    else {
-        
-
-    }
-
-
-    if (!(zone = find_zone(ptr)))
-    {
-        // if (DEBUG_MALLOC) ...
-        return (NULL);
-    }
-    if (zone <= SMALL)
-        free_tiny_or_small(ptr);
+    m_zone = NULL;
+    chunck_size = 0;
+    if (!ptr)
+        ;//printf("error: ptr is null / free()"\n);
+    if (!(meta = ptr_in_zones(ptr, &m_zone, &chunck_size)))
+        ;//printf("error: ptr out of zones or invalid free() // Pointer non allouee !\n");
+    else if (!free_elem(ptr, m_zone, meta, chunck_size))
+        ;//printf("error: invalid ptr free() // Pointer non allouee !\n");
     else
-        free_large(ptr);
+        printf("free a bien fonctionnee\n");
 }
