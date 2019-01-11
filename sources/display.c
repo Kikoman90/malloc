@@ -23,21 +23,23 @@ void    display_meta_mem(void *addr, size_t size, size_t nb_bytes)
     printf("]\n");
 }
 
-void    display_meta(t_meta *meta, size_t nb_bytes, int display_mem)
+void    display_meta(t_meta *meta, size_t *nb_bytes, int display_mem)
 {
     t_meta  *list;
+    int i  = 0;
 
     list = meta;
     while (list)
     {
-        (list->used) ? printf("\033[31mallocated memory]\n") : printf("\033[32mfree memory\n");
+        (list->used) ? printf("\033[31mallocated memory\n") : printf("\033[32mfree memory\n");
         printf("start addr : %p\n", list->addr);
         printf("end addr : %p\n", (void *)((char *)list->addr + list->size));
         hexadiff(list->addr, (void *)((char *)list->addr + list->size));
         ft_putchar('\n');
         if (display_mem && list->used)
-            display_meta_mem(list->addr, list->size, nb_bytes);
+            display_meta_mem(list->addr, list->size, nb_bytes[i]);
         printf("-------------------------------------------------\n");
+        i++;
         list = list->next;
     }
 }

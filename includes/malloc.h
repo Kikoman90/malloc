@@ -81,5 +81,5 @@ void			        metathrow(t_metapool *pool, t_meta *elem);
 
 void	                ft_putchar(char c);
 int                     hexadiff(void *addr1, void *addr2); //
-void                    display_meta(t_meta *meta, size_t nb_bytes, int display_mem);
+void                    display_meta(t_meta *meta, size_t *nb_bytes, int display_mem);
 #endif

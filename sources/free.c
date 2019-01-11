@@ -17,9 +17,17 @@ int     coalesce_chuncks(t_memzone *m_zone, size_t chunck_size, t_meta *elem)
 
     elem->used = 0;
     if (elem->next && !elem->next->used)
+    {
         merge_chuncks(elem, elem->next, m_zone->pool);
+        printf("after first merge\n");
+        display_meta(m_zone->meta, (size_t []){0, 0, 4}, 1);
+    }
     if (elem->prev && !elem->prev->used)
-        merge_chuncks(elem->prev, elem->next, m_zone->pool);
+    {
+        merge_chuncks(elem->prev, elem, m_zone->pool);
+        printf("after second merge\n");
+        display_meta(m_zone->meta, (size_t []){0, 4}, 1);
+    }
     if (!elem->next && !elem->prev)
     {
         if (munmap(m_zone->pool, m_zone->pool->size) == -1)
@@ -41,6 +49,7 @@ int     free_elem(void *ptr, t_memzone *m_zone, t_meta *elem, \
             if (m_zone)
             {
                 elem->used = 0;
+                printf("free_elem %p\n", elem->addr);
                 return (coalesce_chuncks(m_zone, chunck_size, elem));
             }
             else
