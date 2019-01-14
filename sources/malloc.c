@@ -5,6 +5,13 @@
 t_mem			g_memory = {0, 0, 0};
 pthread_mutex_t	g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/*
+	void *destroy_metapool(...);
+	void *destroy_memzone(...);
+	void *destroy_meta(...);
+	void *remove_meta(...);
+*/
+
 static t_metapool	*create_metapool(size_t nb_elem)
 {
 	t_metapool	*pool;
@@ -77,7 +84,7 @@ t_memzone		*create_memzone(size_t chunck_size)
 	t_meta		*free_elem;
 
 	if ((zone = mmap(0, chunck_size * MAX_ALLOC, PROT_READ | PROT_WRITE, \
-		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 	{
 		// if (MALLOC_DEBUG) ...
 		return (NULL);
@@ -88,7 +95,8 @@ t_memzone		*create_memzone(size_t chunck_size)
 		// ... error
 		return (NULL);
 	}
-	if (!(zone->meta = metadip(zone->pool, (void*)(zone + 1), (chunck_size * MAX_ALLOC) - sizeof(t_memzone))))
+	if (!(zone->meta = metadip(zone->pool, (void*)(zone + 1), \
+		(chunck_size * MAX_ALLOC) - sizeof(t_memzone))))
 	{
 		// yeah yeah...
 		return (NULL);
@@ -103,15 +111,12 @@ t_meta			*insert_free(t_metapool *pool, t_meta *meta, void *addr, size_t size) {
 
 	if (!(insert = metadip(pool, addr, size)))
 		return (NULL);
-	//if (meta)
-	//{
 	if (meta->next)
 		meta->next->prev = insert;
 	insert->next = meta->next;
 	insert->prev = meta;
 	meta->next = insert;
-	//}
-	insert->used = 0;
+	insert->used = FALSE;
 	return (insert);
 }
 
@@ -120,15 +125,12 @@ t_meta			*insert_alloc(t_metapool *pool, t_meta *meta, void *addr, size_t size) 
 
 	if (!(insert = metadip(pool, addr, size)))
 		return (NULL);
-	//if (meta)
-	//{
 	if (meta->next)
 		meta->next->prev = insert;
 	insert->next = meta->next;
 	insert->prev = meta;
 	meta->next = insert;
-	//}
-	insert->used = 1;
+	insert->used = TRUE;
 	return (insert);
 }
 
@@ -138,7 +140,7 @@ void			*new_alloc(t_meta *elem, t_memzone *zone, size_t size)
 		(void*)((char*)elem->addr + size), elem->size - size))
 		return (NULL);
 	elem->size = size;
-	elem->used = 1;
+	elem->used = TRUE;
 	return (elem->addr);
 }
 
@@ -168,16 +170,38 @@ void			*malloc_tiny_or_small(size_t size, size_t chunck_size, t_memzone **m_zone
 
 void			*malloc_large(size_t size)
 {
-	(void)size;
-	return (NULL);
+	t_meta	*meta;
+
+	printf("large\n");
+	if ((meta = mmap(0, sizeof(t_meta), PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, \
+		-1, 0)) == MAP_FAILED)
+	{
+		// ...
+		return (NULL);
+	}
+	if ((meta->addr = mmap(0, size, PROT_READ | PROT_WRITE, \
+		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+	{
+		// munmap meta
+		// print err
+		return (NULL);
+	}
+	meta->size = size;
+	meta->used = TRUE;
+	meta->prev = NULL;
+	meta->next = g_memory.large;
+	g_memory.large->prev = meta;
+	g_memory.large = meta;
+	return (meta->addr);
 }
+
 
 /*
 ** il faut une fonction qui s'assure que la taille des zones est un multiple de pagesize()
 */
 void			*mymalloc(size_t size)
 {
-	if (!size || size > LARGE_CHUNCK_SIZE)
+	if (!size || size > MAX_SIZE)
 	{
 		// if (MALLOC_DEBUG) ...
 		return (NULL);

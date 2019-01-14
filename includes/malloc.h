@@ -16,7 +16,8 @@
 
 # define TINY_CHUNCK_SIZE 128
 # define SMALL_CHUNCK_SIZE 4096
-# define LARGE_CHUNCK_SIZE UINT_MAX // 2^32 octets
+
+# define MAX_SIZE UINT_MAX // 2^32 octets
 
 # define MAX_ALLOC 128 //nb d'allocations max par zone
 
@@ -30,7 +31,6 @@
 // getrlimit()
 // 9GB
 // if (getrlimit(RLIMIT_AS) < LARGE_CHUNCK_SIZE) USE RLIMIT !!!
-# define MAX_SIZE LARGE_CHUNCK_SIZE
 
 # define MALLOC_DEBUG 1
 
@@ -76,6 +76,10 @@ void					myfree(void *ptr);
 void					*mymalloc(size_t size);
 void					*myrealloc(void *ptr, size_t size);
 void					show_alloc_mem();
+
+t_meta                  *search_meta(void *ptr, t_meta *meta);
+t_meta                  *ptr_in_zones(void *ptr, t_memzone ***m_zone, \
+                            size_t *chunck_size);
 
 void			        metathrow(t_metapool *pool, t_meta *elem);
 
