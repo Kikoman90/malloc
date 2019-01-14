@@ -9,6 +9,8 @@
 # include <sys/mman.h>
 # include <pthread.h>
 
+# include <errno.h>
+
 # include <string.h> //
 # include <stdio.h> //
 
@@ -17,9 +19,11 @@
 # define TINY_CHUNCK_SIZE 128
 # define SMALL_CHUNCK_SIZE 4096
 
-# define MAX_SIZE UINT_MAX // 2^32 octets
+# define MAX_SIZE UINT_MAX
 
-# define MAX_ALLOC 128 //nb d'allocations max par zone
+# define POOL_SIZE 4096
+
+# define MAX_ALLOC 128
 
 # define TRUE 1
 # define FALSE 0
@@ -30,7 +34,7 @@
 
 // getrlimit()
 // 9GB
-// if (getrlimit(RLIMIT_AS) < LARGE_CHUNCK_SIZE) USE RLIMIT !!!
+// if (getrlimit(RLIMIT_AS) < MAX_SIZE) USE RLIMIT !!!
 
 # define MALLOC_DEBUG 1
 
@@ -58,9 +62,6 @@ typedef struct          s_memzone
     struct s_memzone    *prev;
     struct s_memzone    *next;
 }                       t_memzone;
-//t_meta                *alloc;
-//t_meta                *free;
-// methode double
 
 typedef struct			s_mem
 {
@@ -72,18 +73,58 @@ typedef struct			s_mem
 t_mem					g_memory;
 pthread_mutex_t			g_mutex;
 
-void					myfree(void *ptr);
-void					*mymalloc(size_t size);
-void					*myrealloc(void *ptr, size_t size);
-void					show_alloc_mem();
+void                    show_alloc_mem();
 
-t_meta                  *search_meta(void *ptr, t_meta *meta);
+/*
+** malloc.c             => 4 functions
+*/
+void                    *mymalloc(size_t size);
+
+/*
+** free.c               => 4 functions
+*/
 t_meta                  *ptr_in_zones(void *ptr, t_memzone ***m_zone, \
                             size_t *chunck_size);
+void                    myfree(void *ptr);
 
-void			        metathrow(t_metapool *pool, t_meta *elem);
+/*
+** realloc.c            => ? functions
+*/
+void					*myrealloc(void *ptr, size_t size);
 
+/*
+** heap.c               => 2 functions
+*/
+t_metapool              *create_metapool(size_t nb_meta);
+t_memzone               *create_memzone(size_t chunck_size);
+int                     destroy_metapools(t_metapool *pool);
+int                     destroy_memzone(t_memzone *zone, size_t size);
+
+/*
+** meta.c               => 4 functions
+*/
+int                     destroy_meta(t_meta *meta);
+t_meta                  *remove_meta(t_meta *meta, t_metapool *pool);
+t_meta                  *metadip(t_metapool *metapool, void *addr, size_t size);
+t_meta                  *insert_meta(t_metapool *pool, t_meta *meta, \
+                            void *addr, size_t size);
+
+/*
+** hexa_diff.c          => ? functions
+*/
 void	                ft_putchar(char c);
-int                     hexadiff(void *addr1, void *addr2); //
+int                     hexadiff(void *addr1, void *addr2);
 void                    display_meta(t_meta *meta, size_t *nb_bytes, int display_mem);
+void                    print_tab(char *tab[], size_t nb_string, short print_octets);
+void                    ft_putendl(char const *s);
+void                    ft_putstr(char const *s);
+void                    ft_putchar(char c);
+int                     ft_strlen(char const *str);
+
+/*
+** log.c                => 2 functions
+*/
+int                     log_error(const char *str1, const char *str2);
+void                    *log_error_null(const char *str1, const char *str2);
+
 #endif
