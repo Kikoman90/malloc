@@ -74,6 +74,7 @@ t_mem					g_memory;
 pthread_mutex_t			g_mutex;
 
 void                    show_alloc_mem();
+void                    show_alloc_mem_ex(void);
 
 /*
 ** malloc.c             => 4 functions
@@ -103,7 +104,7 @@ int                     destroy_memzone(t_memzone *zone, size_t size);
 /*
 ** meta.c               => 4 functions
 */
-int                     destroy_meta(t_meta *meta);
+int                     destroy_meta(t_meta *meta, t_meta **head);
 t_meta                  *remove_meta(t_meta *meta, t_metapool *pool);
 t_meta                  *metadip(t_metapool *metapool, void *addr, size_t size);
 t_meta                  *insert_meta(t_metapool *pool, t_meta *meta, \
@@ -115,7 +116,7 @@ t_meta                  *insert_meta(t_metapool *pool, t_meta *meta, \
 void	                ft_putchar(char c);
 int                     hexadiff(void *addr1, void *addr2);
 void                    display_meta(t_meta *meta, size_t *nb_bytes, int display_mem);
-void                    print_tab(char *tab[], size_t nb_string, short print_octets);
+void                    print_tab(char *tab[], size_t nb_string, long long print_octets);
 void                    ft_putendl(char const *s);
 void                    ft_putstr(char const *s);
 void                    ft_putchar(char c);

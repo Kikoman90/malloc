@@ -105,7 +105,7 @@ int show_zone(t_meta *list)
 	save = list;
 	while (save)
 	{
-		if (save->used == TRUE)
+		if (save->used)
 			total += hexadiff(save->addr, (void *)((char *)save->addr + save->size));
 		save = save->next;
 	}
@@ -113,7 +113,7 @@ int show_zone(t_meta *list)
 	return (total);
 }
 
-void print_tab(char *tab[], size_t nb_string, short print_octets)
+void print_tab(char *tab[], size_t nb_string, long long print_octets)
 {
 	unsigned int cpt;
 	
@@ -132,12 +132,44 @@ void print_tab(char *tab[], size_t nb_string, short print_octets)
 	}
 }
 
+int show_octet(t_meta *list, size_t *pos, size_t octetline)
+{
+	t_meta *save;
+	size_t total;
+	size_t cpt;
+	void *addr;
+
+	total = 0;
+	save = list;
+	while (save)
+	{
+		cpt = 0;
+		*pos = (*pos == octetline) ? 0 : *pos;
+		while (cpt < save->size)
+		{
+			addr = (void *)((char *)save->addr + cpt);
+			if (*pos == 0)
+			{
+				print_addr(addr,0);
+				ft_putstr(" : { ");
+			}
+			print_tab((char *[2]){(save->used == 1) ? "\033[33maz\033[0m" : "\033[32mfz\033[0m", (*pos != octetline) ? ", " : " }\n"}, 2, -1);
+			*pos = (*pos == octetline) ? 0 : *pos + 1;
+			cpt++;
+		}
+		if (save->used == TRUE)
+			total += save->size;
+		save = save->next;
+	}
+	ft_putstr("\n");
+	return (total);
+}
 // mon enfant, ton code buggait donc je l'ai changé
 void show_alloc_mem(void)
 {
 	t_memzone	*m_zone;
 	short		type;
-	size_t		total;
+	long long	total;
 
 	total = 0;
 	type = TINY;
@@ -159,11 +191,9 @@ void show_alloc_mem(void)
 		print_addr(g_memory.large, 1);
 		total += show_zone(g_memory.large);
 	}
-	print_tab((char *[2]){"Total : ", " octets"}, 2, total);
+	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
 }
 
-void show_alloc_mem_ex()
-{
 	//boucle par type
 	//si error afficher adress de l'erreur + size et message 
 	//affichier un tableau des octets de la start adress a la end adress 16 bytes/lignes
@@ -172,11 +202,58 @@ void show_alloc_mem_ex()
 	//nz = null zone
 	//[type de zone] = byte error
 	//legende 
+
+void show_alloc_mem_ex(void)
+{
+	t_memzone	*m_zone;
+	short		type;
+	long long	total;
+	size_t		cpt;
+
+	total = 0;
+	type = TINY;
+	while (type < LARGE)
+	{
+		printf("c casse ?\n");
+		m_zone = (type == TINY) ? g_memory.tiny : g_memory.small;
+		if (m_zone)
+			printf("lfdsafs\n");
+		cpt = 0;
+		ft_putstr((type == TINY) ? "TINY :\n" : "SMALL : \n");
+		sleep(1);
+		while (m_zone)
+		{
+			printf("loool\n");
+			total += show_octet(m_zone->meta, &cpt, (type == TINY) ? 15 : 31);
+			m_zone = m_zone->next;
+		}
+		type++;
+	}
+	if (g_memory.large)
+	{
+		cpt = 0;
+		ft_putstr("LARGE :\n");
+		sleep(1);
+		total += show_octet(g_memory.large, &cpt, 31);
+	}
+	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
 }
+
+
 /*
-TINY : 0xA0000
-0xA0020 - 0xA004A : 42 octets
-0xA006A - 0xA00BE : 84 octets
+TINY : 0xA0000 - 0xA0060
+
+0xA0020: {az, az, az, az, nz, nz}
+0xA0030: {az, az, az, az, nz, nz}
+0xA0040: {az, az, az, az, nz, nz}
+0xA0050: {az, az, az, az, nz, nz}
+0xA0060: {az, az, az, az, nz, nz}
+
+
+
+
+0xA004A : 42 octets
+//0xA006A - 0xA00BE : 84 octets
 SMALL : 0xAD000
 0xAD020 - 0xADEAD : 3725 octets
 LARGE : 0xB0000

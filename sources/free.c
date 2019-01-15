@@ -58,25 +58,27 @@ static t_meta   *search_meta(void *ptr, t_meta *meta)
 t_meta          *ptr_in_zones(void *ptr, t_memzone ***m_zone, \
     size_t *chunck_size)
 {
-    short       type;
     void        *start_addr;
-    t_meta      *meta;
+    short       type;
+    t_memzone   *tmp_zone;
     
     type = TINY;
     while (type < LARGE)
     {
+        *m_zone = (type == TINY) ? &g_memory.tiny : &g_memory.small;
         *chunck_size = (type == TINY) ? TINY_CHUNCK_SIZE : SMALL_CHUNCK_SIZE;
-        while (**m_zone)
+        tmp_zone = **m_zone;
+        while (tmp_zone)
         {
-            start_addr = (void*)(**m_zone + 1);
+            start_addr = (void*)(tmp_zone + 1);
             if (ptr >= start_addr && ptr < start_addr + MAX_ALLOC * *chunck_size)
-                return (search_meta(ptr, (**m_zone)->meta));
-            **m_zone = (**m_zone)->next;
+                return (search_meta(ptr, tmp_zone->meta));
+            *m_zone = &tmp_zone->next;
+            tmp_zone = tmp_zone->next;
         }
-        (*m_zone)++;
         type++;
     }
-    **m_zone = NULL;
+    *m_zone = NULL;
     return (search_meta(ptr, g_memory.large));
 }
 
@@ -86,19 +88,21 @@ void            myfree(void *ptr)
     t_memzone   **m_zone;
     size_t      chunck_size;
 
-    m_zone = &g_memory.tiny;
     if (!ptr)
     {
         log_error("error [free] -> null pointer", NULL);
         return ;
     }
+    m_zone = &g_memory.tiny;
     if (!(meta = ptr_in_zones(ptr, &m_zone, &chunck_size)))
-        ;//printf("error: invalid ptr free() // Pointer non allouee !\n");
+        log_error("error [free]: invalid pointer", NULL); // incomplete
     else
     {
-        if (!*m_zone && !destroy_meta(meta))
+        printf("this is the pointer i have %p and this is large %p\n", meta, g_memory.large);
+        printf("this is the zone i have %p and this is small zone %p\n", m_zone, &g_memory.small);
+        if (!m_zone && !destroy_meta(meta, &g_memory.large))
             log_error("error [free] -> destroy_meta()", NULL); // incomplete
-        else if (*m_zone && !merge_chuncks(&m_zone, chunck_size, meta))
+        else if (m_zone && !merge_chuncks(&m_zone, chunck_size, meta))
             log_error("error [free] -> merge_chuncks()", NULL); // incomplete
     }
 }

@@ -13,10 +13,12 @@ void    metathrow(t_metapool *pool, t_meta *elem)
 }
 */
 
-int     destroy_meta(t_meta *meta)
+int     destroy_meta(t_meta *meta, t_meta **head)
 {
 	if (meta->prev)
 		meta->prev->next = meta->next;
+	else
+		*head = meta->next;
 	if (meta->next)
 		meta->next->prev = meta->prev;
 	if (munmap(meta->addr, meta->size) == -1)
