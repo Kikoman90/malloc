@@ -79,6 +79,7 @@ void                    show_alloc_mem_ex(void);
 /*
 ** malloc.c             => 4 functions
 */
+void                    *malloc_large(size_t size);
 void                    *mymalloc(size_t size);
 
 /*

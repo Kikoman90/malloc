@@ -55,7 +55,7 @@ int     main()
     printf("-------------------||---------------------\n");
     myfree(ptr_small);
     printf("-------------------||---------------------\n");
-    show_alloc_mem();
+    show_alloc_mem_ex();
     /*display_meta(g_memory.tiny->meta, size_ptr, 0);
     printf("-------------------||---------------------\n");
     show_alloc_mem_ex();*/

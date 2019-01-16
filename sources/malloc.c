@@ -46,7 +46,7 @@ static void	*malloc_tiny_or_small(size_t size, size_t chunck_size, \
 	return (new_alloc(zone->meta, zone, size)); // check
 }
 
-static void	*malloc_large(size_t size)
+void		*malloc_large(size_t size)
 {
 	t_meta	*meta;
 

@@ -14,7 +14,7 @@ t_meta  *merge_chuncks(t_meta *first, t_meta *second, t_metapool *pool)
 }
 */
 
-static int      merge_chuncks(t_memzone ***m_zone, size_t chunck_size, \
+int             free_elem(t_memzone ***m_zone, size_t chunck_size, \
     t_meta *elem)
 {
     t_meta  *tmp;
@@ -98,11 +98,11 @@ void            myfree(void *ptr)
         log_error("error [free]: invalid pointer", NULL); // incomplete
     else
     {
-        printf("this is the pointer i have %p and this is large %p\n", meta, g_memory.large);
-        printf("this is the zone i have %p and this is small zone %p\n", m_zone, &g_memory.small);
+        //printf("this is the pointer i have %p and this is large %p\n", meta, g_memory.large);
+        //printf("this is the zone i have %p and this is small zone %p\n", m_zone, &g_memory.small);
         if (!m_zone && !destroy_meta(meta, &g_memory.large))
             log_error("error [free] -> destroy_meta()", NULL); // incomplete
-        else if (m_zone && !merge_chuncks(&m_zone, chunck_size, meta))
+        else if (m_zone && !free_elem(&m_zone, chunck_size, meta))
             log_error("error [free] -> merge_chuncks()", NULL); // incomplete
     }
 }

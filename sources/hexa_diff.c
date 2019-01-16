@@ -214,7 +214,7 @@ void show_alloc_mem_ex(void)
 	type = TINY;
 	while (type < LARGE)
 	{
-		printf("c casse ?\n");
+		printf("ki c ka tou kc ?\n");
 		m_zone = (type == TINY) ? g_memory.tiny : g_memory.small;
 		if (m_zone)
 			printf("lfdsafs\n");
