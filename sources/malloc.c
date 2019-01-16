@@ -2,8 +2,8 @@
 
 #include "malloc.h"
 
-t_mem			g_memory = {0, 0, 0}; // mettre ca dans tous les fichiers ??
-pthread_mutex_t	g_mutex = PTHREAD_MUTEX_INITIALIZER; // mettre ca dans tous les fichiers ??
+t_mem			g_memory = {0, 0, 0};
+pthread_mutex_t	g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void	*new_alloc(t_meta *elem, t_memzone *zone, size_t size)
 {
@@ -56,7 +56,7 @@ void		*malloc_large(size_t size)
 	if ((meta->addr = mmap(0, size, PROT_READ | PROT_WRITE, \
 		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 	{
-		// munmap meta ???
+		// munmap meta ??
 		return (log_error_null("//", strerror(errno))); //incomplete
 	}
 	meta->size = size;
@@ -70,7 +70,7 @@ void		*malloc_large(size_t size)
 }
 
 /*
-** il faut une fonction qui s'assure que la taille des zones est un multiple de pagesize()
+** taille des zones doit etre un multiple de pagesize()
 */
 void		*mymalloc(size_t size)
 {

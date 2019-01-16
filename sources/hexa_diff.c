@@ -38,15 +38,16 @@ void    ft_print_unsigned_long_long(unsigned long long n)
     ft_putchar(n % 10 + '0');
 }
 
-char	*ft_itoa_base_seize(unsigned long long value, char *buff)
+char	*ft_itoa_base_seize(unsigned long long value, char *buff, unsigned long long size, short print_Ox)
 {
 	unsigned long long res;
 	unsigned long long j = 0;
 	unsigned long long symb;
 	unsigned long long stock = 0;
+	short end;
 
-	j = 12;
-	if (value > ULLONG_MAX)	
+	j = size -1;
+	if (value > ULLONG_MAX || size > 14)	
 		return (NULL);
 	if (value == ULLONG_MAX)
 	{
@@ -60,7 +61,8 @@ char	*ft_itoa_base_seize(unsigned long long value, char *buff)
 		buff[j] = stock + '0';
 		j--;
 	}
-	while (j > 1)
+	end = (print_Ox == 1) ? 2 : 0;
+	while (j >= end)
 	{
 		if ((res % 16) >= 10)
 			buff[j] = ((res % 16 - 9) + '@');	
@@ -69,20 +71,32 @@ char	*ft_itoa_base_seize(unsigned long long value, char *buff)
 		res /= 16;
 		j--;
 	}
-	buff[0] = '0';
-	buff[1] = 'x';
-	buff[13] = '\0';
+	if (print_Ox) 
+	{
+		buff[0] = '0';
+		buff[1] = 'x';
+	}
+	//printf("toto = %s\n", buff);
+	buff[size] = '\0';
 	return (buff);
 }
 
 void print_addr(void *addr, short ret_line)
 {
-    char buff[14];
+    char buff[15];
 
-    ft_putstr(ft_itoa_base_seize((unsigned long long)addr, buff));
+    ft_putstr(ft_itoa_base_seize((unsigned long long)addr, buff, 14, 1));
 	if (ret_line)
 		ft_putstr("\n");
     return ;
+}
+
+void print_hex_octet(void *addr)
+{
+/*	char val;
+
+	val = &addr;
+	printf("val = %d\n", (char)addr);*/
 }
 
 int hexadiff(void *addr1, void *addr2)
@@ -153,7 +167,12 @@ int show_octet(t_meta *list, size_t *pos, size_t octetline)
 				print_addr(addr,0);
 				ft_putstr(" : { ");
 			}
+			//ft_itoa_base_seize((unsigned long long)&addr, (char[3]){}, 2, 0)
+			//print_hex_octet((void *)255);
 			print_tab((char *[2]){(save->used == 1) ? "\033[33maz\033[0m" : "\033[32mfz\033[0m", (*pos != octetline) ? ", " : " }\n"}, 2, -1);
+			/*ft_putstr((addr != 0) ? "\033[33" : "\033[32");
+			print_hex_octet(addr);
+			print_tab((char *[2]){"\033[0m", (*pos != octetline) ? " " : " }"}, 2, 0);*/
 			*pos = (*pos == octetline) ? 0 : *pos + 1;
 			cpt++;
 		}
@@ -203,7 +222,7 @@ void show_alloc_mem(void)
 	//[type de zone] = byte error
 	//legende 
 
-void show_alloc_mem_ex(void)
+/*void show_alloc_mem_ex(void)
 {
 	t_memzone	*m_zone;
 	short		type;
@@ -237,8 +256,46 @@ void show_alloc_mem_ex(void)
 		total += show_octet(g_memory.large, &cpt, 31);
 	}
 	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
-}
+}*/
 
+void show_alloc_mem_ex(void)
+{
+	t_memzone	*m_zone;
+	short		type;
+	long long	total;
+	size_t		cpt;
+
+	total = 0;
+	type = TINY;
+	while (type < LARGE)
+	{
+		printf("c casse ?\n");
+		m_zone = (type == TINY) ? g_memory.tiny : g_memory.small;
+		if (m_zone)
+			printf("lfdsafs\n");
+		cpt = 0;
+		ft_putstr((type == TINY) ? "TINY :\n" : "SMALL : \n");
+		ft_putstr("Offset addr(hexa)");
+		sleep(1);
+		while (m_zone)
+		{
+			printf("loool\n");
+			total += show_octet(m_zone->meta, &cpt,  15);
+			m_zone = m_zone->next;
+		}
+		type++;
+	}
+	if (g_memory.large)
+	{
+		cpt = 0;
+		ft_putstr("LARGE :\n");
+		sleep(1);
+		total += show_octet(g_memory.large, &cpt, 15);
+	}
+	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
+	/*char buff[3];
+	printf("ft_itoa_base_seize de 128= %s\n", ft_itoa_base_seize(255,buff, 2, 0));*/
+}
 
 /*
 TINY : 0xA0000 - 0xA0060

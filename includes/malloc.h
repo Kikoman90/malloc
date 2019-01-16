@@ -85,6 +85,8 @@ void                    *mymalloc(size_t size);
 /*
 ** free.c               => 4 functions
 */
+int                     free_elem(t_memzone ***m_zone, size_t chunck_size, \
+                            t_meta *elem);
 t_meta                  *ptr_in_zones(void *ptr, t_memzone ***m_zone, \
                             size_t *chunck_size);
 void                    myfree(void *ptr);
