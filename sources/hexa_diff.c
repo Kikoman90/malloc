@@ -38,6 +38,16 @@ void    ft_print_unsigned_long_long(unsigned long long n)
     ft_putchar(n % 10 + '0');
 }
 
+void    ft_print_ull_hex(unsigned long long n, short nb_turn)
+{
+    if ((n > 16 && n <= ULLONG_MAX) && nb_turn > 0)
+        ft_print_ull_hex(n / 16, nb_turn--);
+	if ((n % 16) >= 10)
+		ft_putchar((n % 16 - 9)  + '@');
+	else 
+    	ft_putchar(n % 16 + '0');
+}
+
 char	*ft_itoa_base_seize(unsigned long long value, char *buff, unsigned long long size, short print_Ox)
 {
 	unsigned long long res;
@@ -60,6 +70,10 @@ char	*ft_itoa_base_seize(unsigned long long value, char *buff, unsigned long lon
 	{
 		buff[j] = stock + '0';
 		j--;
+	}
+	else
+	{
+
 	}
 	end = (print_Ox == 1) ? 2 : 0;
 	while (j >= end)
@@ -89,14 +103,6 @@ void print_addr(void *addr, short ret_line)
 	if (ret_line)
 		ft_putstr("\n");
     return ;
-}
-
-void print_hex_octet(void *addr)
-{
-/*	char val;
-
-	val = &addr;
-	printf("val = %d\n", (char)addr);*/
 }
 
 int hexadiff(void *addr1, void *addr2)
@@ -146,12 +152,15 @@ void print_tab(char *tab[], size_t nb_string, long long print_octets)
 	}
 }
 
+
 int show_octet(t_meta *list, size_t *pos, size_t octetline)
 {
 	t_meta *save;
 	size_t total;
 	size_t cpt;
 	void *addr;
+	unsigned char *x = NULL;
+	unsigned char buff[octetline + 1];
 
 	total = 0;
 	save = list;
@@ -159,20 +168,64 @@ int show_octet(t_meta *list, size_t *pos, size_t octetline)
 	{
 		cpt = 0;
 		*pos = (*pos == octetline) ? 0 : *pos;
+		x = (unsigned char *)save->addr;
 		while (cpt < save->size)
 		{
-			addr = (void *)((char *)save->addr + cpt);
+			addr = (void*)((char *)save->addr + cpt);
+			//printf("addr = %c\n", addr);
 			if (*pos == 0)
 			{
 				print_addr(addr,0);
 				ft_putstr(" : { ");
+				//printf("%p : { ", addr);
 			}
-			//ft_itoa_base_seize((unsigned long long)&addr, (char[3]){}, 2, 0)
-			//print_hex_octet((void *)255);
-			print_tab((char *[2]){(save->used == 1) ? "\033[33maz\033[0m" : "\033[32mfz\033[0m", (*pos != octetline) ? ", " : " }\n"}, 2, -1);
-			/*ft_putstr((addr != 0) ? "\033[33" : "\033[32");
-			print_hex_octet(addr);
-			print_tab((char *[2]){"\033[0m", (*pos != octetline) ? " " : " }"}, 2, 0);*/
+			char c;
+			
+			//print_tab((char *[2]){(save->used == 1) ? "\033[33maz\033[0m" : "\033[32mfz\033[0m", (*pos != octetline) ? ", " : " }\n"}, 2, -1);
+			//printf("%s",((*(x+cpt) != 0) ? "\033[33" : "\033[32"));
+			// printf("%02p", *(x + cpt));
+			c = *(char *)(x + cpt);
+			if (save->used == 1)
+				ft_putstr("\033[33m");
+			else 
+			{
+				if (c != 0x00)
+					ft_putstr("\033[31m");
+				else
+					ft_putstr("\033[32m");
+			}
+			/*if (c > 0x0F)
+				ft_print_ull_hex((unsigned long long)c, 2);
+			else
+			{
+				ft_putchar('0');
+				ft_print_ull_hex((unsigned long long)c, 2);
+			}*/
+			printf("%02hhx", c);
+			fflush(stdout);
+			ft_putstr("\033[0m");
+			ft_putstr((*pos != octetline) ? ", " : " } ");
+			if (*pos != octetline)
+				buff[*pos] = *(x +cpt);
+			else
+			{
+				buff[*pos] = *(x +cpt);
+				buff[*pos + 1] = '\0';
+				/*printf(" [ ");
+				printf("%s", (char *)buff+'0');
+				printf(" ]\n");*/
+				for(int k = 0; k <= *pos; k++)
+				{
+					if (k == 0)
+						ft_putstr(" [ ");
+						c = buff[k];
+						if (!(c >= 0x20 && c <= 0x7e))
+							c = '.';
+					ft_putchar(c);
+					if (k == *pos)
+						ft_putstr(" ]\n");
+				}
+			}
 			*pos = (*pos == octetline) ? 0 : *pos + 1;
 			cpt++;
 		}

@@ -25,12 +25,13 @@ int     main()
     ptr2 = (char*)mymalloc(sizeof(char) * 10);
     ptr3 = (long*)mymalloc(sizeof(long) * 10);
     ptr4 = (int*)mymalloc(sizeof(int) * 10);
-    ptr_small =(char *)mymalloc(sizeof(char) * 3120); 
+    //ptr_small =(char *)mymalloc(sizeof(char) * 3120); 
     //3290 octets
-    ptr_large = (int*)mymalloc(sizeof(int) * 4120);
-    ptr_large2 = (int*)mymalloc(sizeof(int) * 9000);
+    //ptr_large = (int*)mymalloc(sizeof(int) * 4120);
+   // ptr_large2 = (int*)mymalloc(sizeof(int) * 9000);
     // 19770 octets
     i = 0;
+    //printf("allocated at :%p\n", ptr2);
     while (i < 10)
     {
         ptr1[i] = 0 + i;
@@ -39,31 +40,31 @@ int     main()
         ptr4[i] = -10 - i;
         i++;
     }
-    show_alloc_mem();
+   // show_alloc_mem();
     printf("\033[0m-------------------||---------------------\n");    
     //myfree(ptr4 + 1);
    // display_meta(g_memory.large, size_ptr, 0);
-    myfree(ptr_large);
+   // myfree(ptr_large);
     printf("-------------------||---------------------\n");
-    show_alloc_mem();
+    //show_alloc_mem();
     printf("\033[0m-------------------||---------------------\n");    
     //myfree(ptr4 + 1);
    // display_meta(g_memory.large, size_ptr, 0);
-    ptr_large2 = myrealloc(ptr_large2, 120);
+   // ptr_large2 = myrealloc(ptr_large2, 120);
     printf("-------------------||---------------------\n");
-    show_alloc_mem();
+   // show_alloc_mem();
     printf("-------------------||---------------------\n");
-    myfree(ptr_small);
+   // myfree(ptr_small);
     printf("-------------------||---------------------\n");
-    show_alloc_mem();
+    //show_alloc_mem();
     printf("-------------------||---------------------\n");
-    myfree(ptr2);
-    show_alloc_mem();
-    printf("-------------------||---------------------\n");
-    ptr1 = myrealloc(ptr1, 48);
-    ptr_large2 = mymalloc(2);
-    show_alloc_mem();
-    printf("JAYSON CA A L'AIR DE MARCHER\nESPECE DE VIEILLE MOUETTE DEGARNIE\n");
+    //myfree(ptr2);
+    //show_alloc_mem();
+   // printf("-------------------||---------------------\n");
+    //ptr1 = myrealloc(ptr1, 48);
+    //ptr_large2 = mymalloc(2);
+    show_alloc_mem_ex();
+   // printf("JAYSON CA A L'AIR DE MARCHER\nESPECE DE VIEILLE MOUETTE DEGARNIE\n");
     //show_alloc_mem_ex();
     /*display_meta(g_memory.tiny->meta, size_ptr, 0);
     printf("-------------------||---------------------\n");
