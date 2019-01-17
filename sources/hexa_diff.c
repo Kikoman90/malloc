@@ -38,10 +38,10 @@ void    ft_print_unsigned_long_long(unsigned long long n)
     ft_putchar(n % 10 + '0');
 }
 
-void    ft_print_ull_hex(unsigned long long n, short nb_turn)
+void    ft_print_ull_hex(unsigned char n)
 {
-    if ((n > 16 && n <= ULLONG_MAX) && nb_turn > 0)
-        ft_print_ull_hex(n / 16, nb_turn--);
+    if ((n > 16 && n <= 255))
+        ft_print_ull_hex(n / 16);
 	if ((n % 16) >= 10)
 		ft_putchar((n % 16 - 9)  + '@');
 	else 
@@ -172,37 +172,25 @@ int show_octet(t_meta *list, size_t *pos, size_t octetline)
 		while (cpt < save->size)
 		{
 			addr = (void*)((char *)save->addr + cpt);
-			//printf("addr = %c\n", addr);
 			if (*pos == 0)
 			{
 				print_addr(addr,0);
 				ft_putstr(" : { ");
-				//printf("%p : { ", addr);
 			}
 			char c;
 			
-			//print_tab((char *[2]){(save->used == 1) ? "\033[33maz\033[0m" : "\033[32mfz\033[0m", (*pos != octetline) ? ", " : " }\n"}, 2, -1);
-			//printf("%s",((*(x+cpt) != 0) ? "\033[33" : "\033[32"));
-			// printf("%02p", *(x + cpt));
 			c = *(char *)(x + cpt);
 			if (save->used == 1)
 				ft_putstr("\033[33m");
 			else 
-			{
-				if (c != 0x00)
-					ft_putstr("\033[31m");
-				else
-					ft_putstr("\033[32m");
-			}
-			/*if (c > 0x0F)
-				ft_print_ull_hex((unsigned long long)c, 2);
+				(c != 0x0) ? ft_putstr("\033[32m") : ft_putstr("\033[34m");
+			if ((unsigned char)c > 0xF)
+				ft_print_ull_hex((unsigned char)c);
 			else
 			{
 				ft_putchar('0');
-				ft_print_ull_hex((unsigned long long)c, 2);
-			}*/
-			printf("%02hhx", c);
-			fflush(stdout);
+				ft_print_ull_hex((unsigned char)c);
+			}
 			ft_putstr("\033[0m");
 			ft_putstr((*pos != octetline) ? ", " : " } ");
 			if (*pos != octetline)
@@ -211,9 +199,6 @@ int show_octet(t_meta *list, size_t *pos, size_t octetline)
 			{
 				buff[*pos] = *(x +cpt);
 				buff[*pos + 1] = '\0';
-				/*printf(" [ ");
-				printf("%s", (char *)buff+'0');
-				printf(" ]\n");*/
 				for(int k = 0; k <= *pos; k++)
 				{
 					if (k == 0)
@@ -263,17 +248,8 @@ void show_alloc_mem(void)
 		print_addr(g_memory.large, 1);
 		total += show_zone(g_memory.large);
 	}
-	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
+	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets allouées"}, 2, total);
 }
-
-	//boucle par type
-	//si error afficher adress de l'erreur + size et message 
-	//affichier un tableau des octets de la start adress a la end adress 16 bytes/lignes
-	//az = allocaded zone
-	//fz = free zone 
-	//nz = null zone
-	//[type de zone] = byte error
-	//legende 
 
 /*void show_alloc_mem_ex(void)
 {
@@ -322,32 +298,29 @@ void show_alloc_mem_ex(void)
 	type = TINY;
 	while (type < LARGE)
 	{
-		printf("c casse ?\n");
 		m_zone = (type == TINY) ? g_memory.tiny : g_memory.small;
-		if (m_zone)
-			printf("lfdsafs\n");
 		cpt = 0;
-		ft_putstr((type == TINY) ? "TINY :\n" : "SMALL : \n");
-		ft_putstr("Offset addr(hexa)");
+		ft_putstr((type == TINY) ? "TINY :\n" : "SMALL : \n"); //ASCII
+		ft_putstr("Offset address |   00  01  02  03  04  05  06  07  08  09  0A  0B  0C  0D  0E  0F    |      ASCII       |\n");
+		ft_putstr("---------------------------------------------------------------------------------------------------------\n");
 		sleep(1);
 		while (m_zone)
 		{
-			printf("loool\n");
 			total += show_octet(m_zone->meta, &cpt,  15);
 			m_zone = m_zone->next;
 		}
 		type++;
 	}
+	ft_putstr("LARGE :\n");
+	ft_putstr("Offset address |   00  01  02  03  04  05  06  07  08  09  0A  0B  0C  0D  0E  0F    |      ASCII       |\n");
+	ft_putstr("---------------------------------------------------------------------------------------------------------\n");
+	sleep(1);
 	if (g_memory.large)
 	{
 		cpt = 0;
-		ft_putstr("LARGE :\n");
-		sleep(1);
 		total += show_octet(g_memory.large, &cpt, 15);
 	}
 	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
-	/*char buff[3];
-	printf("ft_itoa_base_seize de 128= %s\n", ft_itoa_base_seize(255,buff, 2, 0));*/
 }
 
 /*
