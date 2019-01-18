@@ -1,12 +1,16 @@
 #include "malloc.h"
 
+void __attribute__((constructor)) begin() {
+	printf("ok\n");
+}
+
 void __attribute__((destructor)) end() {
 
     while (getchar() != 'a')
     {
         ;
     }
-
+    endwin();
 }
 
 int     main()
@@ -41,29 +45,29 @@ int     main()
         i++;
     }
    // show_alloc_mem();
-    printf("\033[0m-------------------||---------------------\n");    
+    //printf("\033[0m-------------------||---------------------\n");    
     //myfree(ptr4 + 1);
    // display_meta(g_memory.large, size_ptr, 0);
    // myfree(ptr_large);
-    printf("-------------------||---------------------\n");
+    //printf("-------------------||---------------------\n");
     //show_alloc_mem();
-    printf("\033[0m-------------------||---------------------\n");    
+    //printf("\033[0m-------------------||---------------------\n");    
     //myfree(ptr4 + 1);
    // display_meta(g_memory.large, size_ptr, 0);
    // ptr_large2 = myrealloc(ptr_large2, 120);
-    printf("-------------------||---------------------\n");
+    //printf("-------------------||---------------------\n");
    // show_alloc_mem();
-    printf("-------------------||---------------------\n");
+    //printf("-------------------||---------------------\n");
    // myfree(ptr_small);
-    printf("-------------------||---------------------\n");
+    //printf("-------------------||---------------------\n");
     //show_alloc_mem();
-    printf("-------------------||---------------------\n");
+    //printf("-------------------||---------------------\n");
     //myfree(ptr2);
     //show_alloc_mem();
    // printf("-------------------||---------------------\n");
     //ptr1 = myrealloc(ptr1, 48);
     //ptr_large2 = mymalloc(2);
-    show_alloc_mem_ex();
+    //show_alloc_mem_ex();
    // printf("JAYSON CA A L'AIR DE MARCHER\nESPECE DE VIEILLE MOUETTE DEGARNIE\n");
     //show_alloc_mem_ex();
     /*display_meta(g_memory.tiny->meta, size_ptr, 0);

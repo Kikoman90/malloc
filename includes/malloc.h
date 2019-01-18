@@ -11,6 +11,13 @@
 
 # include <errno.h>
 
+# include <ncurses.h>
+# include <locale.h>
+# include <wchar.h>
+
+# define COL_DEFAULT 1
+# define COL_ 2
+
 # include <string.h> //
 # include <stdio.h> //
 
@@ -68,10 +75,14 @@ typedef struct			s_mem
     t_memzone			*tiny;
     t_memzone			*small;
     t_meta              *large;
+    SCREEN              *d_scr;
+    WINDOW              *d_win;
 }						t_mem;
 
 t_mem					g_memory;
 pthread_mutex_t			g_mutex;
+
+WINDOW                  *init_debug_display();
 
 void                    show_alloc_mem();
 void                    show_alloc_mem_ex(void);

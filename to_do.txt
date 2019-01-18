@@ -1,7 +1,19 @@
-fonction creation liste chainee
-fonctions interaction liste (alimenter la liste free ou alloc en fonction du status)
-fonction malloc
-fonction realloc
-fonction free
-fonction show_alloc_mem
-fonction fonctions de parcours de liste
+fichier auteur et headers 42 avant de corriger le projet !! 
+make debug : compiler la librairie malloc en mode debug (DEBUG_MALLOC := 1)
+
+TODO
+* alignement sur 16 bytes
+* thread safe
+* defragmentation
+* mode debug ? (ncurses)
+* show_alloc_mem_ex -> dump hexa de Jay
+* calloc
+* completer les messages d'erreur
+* mettre a la norme
+
+TESTS
+* plusieurs zones tiny/small -> tester
+* free/malloc/realloc/calloc
+* testX de jfortin
+* essayer de lancer emacs et vim
+* mode debug

@@ -74,6 +74,8 @@ void		*malloc_large(size_t size)
 */
 void		*mymalloc(size_t size)
 {
+	if (MALLOC_DEBUG && !g_memory.d_scr)
+		init_debug_display();
 	if (!size || size > MAX_SIZE)
 		return (log_error_null("error [malloc] -> size is invalid", NULL)); //incomplete
 	if (size <= TINY_CHUNCK_SIZE)
