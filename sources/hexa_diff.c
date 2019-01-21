@@ -1,63 +1,17 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <limits.h>
+
 #include "malloc.h"
 
-void	ft_putchar(char c)
+char	*ft_itoa_addr(ull_64 value, char *s, ull_64 size, short print_ox)
 {
-	write(1, &c, 1);
-}
+	ull_64	res;
+	ull_64	j;
+	ull_64	symb;
+	ull_64	stock;
+	short	end;
 
-int     ft_strlen(char const *str)
-{
-    int i;
-
-    i = 0;
-    while (str[i])
-        i++;
-    return (i);
-}
-
-void	ft_putstr(char const *s)
-{
-	write(1, s, ft_strlen(s));
-}
-
-void	ft_putendl(char const *s)
-{
-	write(1, s, ft_strlen(s));
-	write(1, "\n", 1);
-}
-
-void    ft_print_unsigned_long_long(unsigned long long n)
-{
-    if (n > 9 && n <= ULLONG_MAX)
-        ft_print_unsigned_long_long(n / 10);
-    ft_putchar(n % 10 + '0');
-}
-
-void    ft_print_ull_hex(unsigned char n)
-{
-    if ((n > 16 && n <= 255))
-        ft_print_ull_hex(n / 16);
-	if ((n % 16) >= 10)
-		ft_putchar((n % 16 - 9)  + '@');
-	else 
-    	ft_putchar(n % 16 + '0');
-}
-
-char	*ft_itoa_base_seize(unsigned long long value, char *buff, unsigned long long size, short print_Ox)
-{
-	unsigned long long res;
-	unsigned long long j = 0;
-	unsigned long long symb;
-	unsigned long long stock = 0;
-	short end;
-
-	j = size -1;
-	if (value > ULLONG_MAX || size > 14)	
+	j = size - 1;
+	stock = 0;
+	if (value > ULLONG_MAX || size > 14)
 		return (NULL);
 	if (value == ULLONG_MAX)
 	{
@@ -68,75 +22,68 @@ char	*ft_itoa_base_seize(unsigned long long value, char *buff, unsigned long lon
 	res = value;
 	if (stock != 0)
 	{
-		buff[j] = stock + '0';
+		s[j] = stock + '0';
 		j--;
 	}
-	else
-	{
-
-	}
-	end = (print_Ox == 1) ? 2 : 0;
+	end = (print_ox == 1) ? 2 : 0;
 	while (j >= end)
 	{
-		if ((res % 16) >= 10)
-			buff[j] = ((res % 16 - 9) + '@');	
-		else
-			buff[j] = ((res % 16) + '0');
+		s[j] = ((res % 16) >= 10) ? ((res % 16 - 9) + '@') : ((res % 16) + '0');
 		res /= 16;
 		j--;
 	}
-	if (print_Ox) 
+	if (print_ox)
 	{
-		buff[0] = '0';
-		buff[1] = 'x';
+		s[0] = '0';
+		s[1] = 'x';
 	}
-	//printf("toto = %s\n", buff);
-	buff[size] = '\0';
-	return (buff);
+	s[size] = '\0';
+	return (s);
 }
 
-void print_addr(void *addr, short ret_line)
+void	print_addr(void *addr, short ret_line)
 {
-    char buff[15];
+	char	buff[15];
 
-    ft_putstr(ft_itoa_base_seize((unsigned long long)addr, buff, 14, 1));
+	ft_putstr(ft_itoa_addr((ull_64)addr, buff, 14, 1));
 	if (ret_line)
 		ft_putstr("\n");
-    return ;
+	return ;
 }
 
-int hexadiff(void *addr1, void *addr2)
+int		hexadiff(void *addr1, void *addr2)
 {
-    print_addr(addr1, 0);
-    ft_putstr(" - ");
-    print_addr(addr2, 0);
-    ft_putstr(" : ");
-    ft_print_unsigned_long_long(addr2 - addr1);
-    ft_putstr(" octets\n");
+	print_addr(addr1, 0);
+	ft_putstr(" - ");
+	print_addr(addr2, 0);
+	ft_putstr(" : ");
+	ft_print_unsigned_long_long(addr2 - addr1);
+	ft_putstr(" octets\n");
 	return (addr2 - addr1);
 }
 
-int show_zone(t_meta *list)
+int		show_zone(t_meta *list)
 {
-	t_meta *save;
-	size_t total;
+	t_meta	*save;
+	size_t	total;
 
 	total = 0;
 	save = list;
 	while (save)
 	{
 		if (save->used)
-			total += hexadiff(save->addr, (void *)((char *)save->addr + save->size));
+			total += hexadiff(save->addr, \
+				(void *)((char *)save->addr + save->size));
 		save = save->next;
 	}
 	ft_putstr("\n");
 	return (total);
 }
 
-void print_tab(char *tab[], size_t nb_string, long long print_octets)
+void	print_tab(char *tab[], size_t nb_string, ull_64 print_octets)
 {
-	unsigned int cpt;
-	
+	unsigned int	cpt;
+
 	cpt = 0;
 	if (nb_string == 2 && print_octets != -1)
 	{
@@ -152,15 +99,71 @@ void print_tab(char *tab[], size_t nb_string, long long print_octets)
 	}
 }
 
-
-int show_octet(t_meta *list, size_t *pos, size_t octetline)
+void	dump_hexa(t_meta *save, size_t cpt, size_t *pos, unsigned char *x)
 {
-	t_meta *save;
-	size_t total;
-	size_t cpt;
-	void *addr;
-	unsigned char *x = NULL;
-	unsigned char buff[octetline + 1];
+	void	*addr;
+	char	c;
+
+	addr = (void*)((char *)save->addr + cpt);
+	if (*pos == 0)
+	{
+		print_addr(addr, 0);
+		ft_putstr(" : { ");
+	}
+	c = *(char *)(x + cpt);
+	if (save->used == 1)
+		ft_putstr("\033[33m");
+	else
+		(c != 0x0) ? ft_putstr("\033[31m") : ft_putstr("\033[34m");
+	if ((unsigned char)c > 0xF)
+		ft_print_uc_hex((unsigned char)c);
+	else
+	{
+		ft_putchar('0');
+		ft_print_uc_hex((unsigned char)c);
+	}
+	ft_putstr("\033[0m");
+}
+
+void	print_ascii(unsigned char *buff, size_t *pos)
+{
+	unsigned int	cpt;
+	char			c;
+
+	cpt = 0;
+	while (cpt <= *pos)
+	{
+		if (cpt == 0)
+			ft_putstr(" [ ");
+		c = buff[cpt];
+		if (!(c >= 0x20 && c <= 0x7e))
+			c = '.';
+		ft_putchar(c);
+		if (cpt == *pos)
+			ft_putstr(" ]\n");
+		cpt++;
+	}
+}
+
+void	tab_ascii(unsigned char *s, size_t *pos, size_t l_oct, unsigned char c)
+{
+	if (*pos != octetline)
+		s[*pos] = c;
+	else
+	{
+		s[*pos] = c;
+		s[*pos + 1] = '\0';
+		print_ascii(s, pos);
+	}
+}
+
+int		show_octet(t_meta *list, size_t *pos, size_t octetline)
+{
+	t_meta			*save;
+	size_t			total;
+	size_t			cpt;
+	unsigned char	*x;
+	unsigned char	buff[octetline + 1];
 
 	total = 0;
 	save = list;
@@ -171,58 +174,19 @@ int show_octet(t_meta *list, size_t *pos, size_t octetline)
 		x = (unsigned char *)save->addr;
 		while (cpt < save->size)
 		{
-			addr = (void*)((char *)save->addr + cpt);
-			if (*pos == 0)
-			{
-				print_addr(addr,0);
-				ft_putstr(" : { ");
-			}
-			char c;
-			
-			c = *(char *)(x + cpt);
-			if (save->used == 1)
-				ft_putstr("\033[33m");
-			else 
-				(c != 0x0) ? ft_putstr("\033[32m") : ft_putstr("\033[34m");
-			if ((unsigned char)c > 0xF)
-				ft_print_ull_hex((unsigned char)c);
-			else
-			{
-				ft_putchar('0');
-				ft_print_ull_hex((unsigned char)c);
-			}
-			ft_putstr("\033[0m");
+			dump_hexa(save, cpt, pos, x);
 			ft_putstr((*pos != octetline) ? ", " : " } ");
-			if (*pos != octetline)
-				buff[*pos] = *(x +cpt);
-			else
-			{
-				buff[*pos] = *(x +cpt);
-				buff[*pos + 1] = '\0';
-				for(int k = 0; k <= *pos; k++)
-				{
-					if (k == 0)
-						ft_putstr(" [ ");
-						c = buff[k];
-						if (!(c >= 0x20 && c <= 0x7e))
-							c = '.';
-					ft_putchar(c);
-					if (k == *pos)
-						ft_putstr(" ]\n");
-				}
-			}
+			tab_ascii(buff, pos, octetline, *(x + cpt));
 			*pos = (*pos == octetline) ? 0 : *pos + 1;
 			cpt++;
 		}
-		if (save->used == TRUE)
-			total += save->size;
+		total += (save->used == TRUE) ? save->size : 0;
 		save = save->next;
 	}
-	ft_putstr("\n");
 	return (total);
 }
-// mon enfant, ton code buggait donc je l'ai changé
-void show_alloc_mem(void)
+
+void	show_alloc_mem(void)
 {
 	t_memzone	*m_zone;
 	short		type;
@@ -248,46 +212,22 @@ void show_alloc_mem(void)
 		print_addr(g_memory.large, 1);
 		total += show_zone(g_memory.large);
 	}
-	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets allouées"}, 2, total);
+	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
 }
 
-/*void show_alloc_mem_ex(void)
+void	prt_header_hexadump(short type)
 {
-	t_memzone	*m_zone;
-	short		type;
-	long long	total;
-	size_t		cpt;
+	if (type == TINY || type == SMALL)
+		ft_putstr((type == TINY) ? "\nTINY :\n" : "\nSMALL : \n");
+	else
+		ft_putstr("\nLARGE :\n");
+	ft_putstr("Offset address |   00  01  02  03  04  05  06  ");
+	ft_putstr("07  08  09  0A  0B  0C  0D  0E  0F    |      ASCII       |\n");
+	ft_putstr("-----------------------------------------------------");
+	ft_putstr("----------------------------------------------------\n");
+}
 
-	total = 0;
-	type = TINY;
-	while (type < LARGE)
-	{
-		printf("ki c ka tou kc ?\n");
-		m_zone = (type == TINY) ? g_memory.tiny : g_memory.small;
-		if (m_zone)
-			printf("lfdsafs\n");
-		cpt = 0;
-		ft_putstr((type == TINY) ? "TINY :\n" : "SMALL : \n");
-		sleep(1);
-		while (m_zone)
-		{
-			printf("loool\n");
-			total += show_octet(m_zone->meta, &cpt, (type == TINY) ? 15 : 31);
-			m_zone = m_zone->next;
-		}
-		type++;
-	}
-	if (g_memory.large)
-	{
-		cpt = 0;
-		ft_putstr("LARGE :\n");
-		sleep(1);
-		total += show_octet(g_memory.large, &cpt, 31);
-	}
-	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
-}*/
-
-void show_alloc_mem_ex(void)
+void	show_alloc_mem_ex(void)
 {
 	t_memzone	*m_zone;
 	short		type;
@@ -300,46 +240,17 @@ void show_alloc_mem_ex(void)
 	{
 		m_zone = (type == TINY) ? g_memory.tiny : g_memory.small;
 		cpt = 0;
-		ft_putstr((type == TINY) ? "TINY :\n" : "SMALL : \n"); //ASCII
-		ft_putstr("Offset address |   00  01  02  03  04  05  06  07  08  09  0A  0B  0C  0D  0E  0F    |      ASCII       |\n");
-		ft_putstr("---------------------------------------------------------------------------------------------------------\n");
-		sleep(1);
+		prt_header_hexadump(type);
 		while (m_zone)
 		{
-			total += show_octet(m_zone->meta, &cpt,  15);
+			total += show_octet(m_zone->meta, &cpt, 15);
 			m_zone = m_zone->next;
 		}
 		type++;
 	}
-	ft_putstr("LARGE :\n");
-	ft_putstr("Offset address |   00  01  02  03  04  05  06  07  08  09  0A  0B  0C  0D  0E  0F    |      ASCII       |\n");
-	ft_putstr("---------------------------------------------------------------------------------------------------------\n");
-	sleep(1);
+	prt_header_hexadump(type);
+	cpt = 0;
 	if (g_memory.large)
-	{
-		cpt = 0;
 		total += show_octet(g_memory.large, &cpt, 15);
-	}
 	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
 }
-
-/*
-TINY : 0xA0000 - 0xA0060
-
-0xA0020: {az, az, az, az, nz, nz}
-0xA0030: {az, az, az, az, nz, nz}
-0xA0040: {az, az, az, az, nz, nz}
-0xA0050: {az, az, az, az, nz, nz}
-0xA0060: {az, az, az, az, nz, nz}
-
-
-
-
-0xA004A : 42 octets
-//0xA006A - 0xA00BE : 84 octets
-SMALL : 0xAD000
-0xAD020 - 0xADEAD : 3725 octets
-LARGE : 0xB0000
-0xB0020 - 0xBBEEF : 48847 octets
-Total : 52698 octets
-*/

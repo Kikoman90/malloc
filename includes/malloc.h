@@ -39,6 +39,8 @@
 # define SMALL 2
 # define LARGE 3
 
+# define ull_64 unsigned long long
+
 // getrlimit()
 // 9GB
 // if (getrlimit(RLIMIT_AS) < MAX_SIZE) USE RLIMIT !!!
@@ -130,11 +132,13 @@ t_meta                  *insert_meta(t_metapool *pool, t_meta *meta, \
 void	                ft_putchar(char c);
 int                     hexadiff(void *addr1, void *addr2);
 void                    display_meta(t_meta *meta, size_t *nb_bytes, int display_mem);
-void                    print_tab(char *tab[], size_t nb_string, long long print_octets);
+void                    print_tab(char *tab[], size_t nb_string, ull_64 print_octets);
 void                    ft_putendl(char const *s);
 void                    ft_putstr(char const *s);
 void                    ft_putchar(char c);
 int                     ft_strlen(char const *str);
+void                    ft_print_uc_hex(unsigned char c);
+void                    ft_print_unsigned_long_long(ull_64 n);
 
 /*
 ** log.c                => 2 functions

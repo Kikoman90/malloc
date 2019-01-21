@@ -10,7 +10,7 @@ void __attribute__((destructor)) end() {
     {
         ;
     }
-    endwin();
+  //  endwin();
 }
 
 int     main()
@@ -44,7 +44,7 @@ int     main()
         ptr4[i] = -10 - i;
         i++;
     }
-   // show_alloc_mem();
+    //show_alloc_mem();
     //printf("\033[0m-------------------||---------------------\n");    
     //myfree(ptr4 + 1);
    // display_meta(g_memory.large, size_ptr, 0);
@@ -69,7 +69,7 @@ int     main()
     //ptr_large2 = mymalloc(2);
     //show_alloc_mem_ex();
    // printf("JAYSON CA A L'AIR DE MARCHER\nESPECE DE VIEILLE MOUETTE DEGARNIE\n");
-    //show_alloc_mem_ex();
+    show_alloc_mem_ex();
     /*display_meta(g_memory.tiny->meta, size_ptr, 0);
     printf("-------------------||---------------------\n");
     show_alloc_mem_ex();*/

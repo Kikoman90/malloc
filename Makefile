@@ -22,6 +22,10 @@ SRCS = malloc.c \
 	   display.c \
 	   meta.c \
 	   log.c \
+	   calloc.c \
+	   heap.c \
+	   hexa_diff.c \
+	   realloc.c
 
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:.c=.o))
 
