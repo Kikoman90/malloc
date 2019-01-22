@@ -5,8 +5,6 @@
 int				free_elem(t_memzone ***m_zone, size_t chunck_size, \
 	t_meta *elem)
 {
-	t_meta	*tmp;
-
 	elem->used = 0;
 	if (elem->next && !elem->next->used)
 	{
@@ -70,7 +68,7 @@ t_meta			*ptr_in_zones(void *ptr, t_memzone ***m_zone, \
 	return (search_meta(ptr, g_memory.large));
 }
 
-void			myfree(void *ptr)
+void			free(void *ptr)
 {
 	t_meta		*meta;
 	t_memzone	**m_zone;

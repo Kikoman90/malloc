@@ -6,11 +6,11 @@
 /*   By: fsidler <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/08 12:40:45 by fsidler           #+#    #+#             */
-/*   Updated: 2019/01/08 12:42:57 by fsidler          ###   ########.fr       */
+/*   Updated: 2019/01/22 15:09:58 by fsidler          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
+#include "malloc.h"
 #include <stdio.h>
 
 int		main(int argc, char **argv) {

@@ -10,23 +10,16 @@
 # include <pthread.h>
 
 # include <errno.h>
+# include <string.h>
 
-# include <ncurses.h>
-# include <locale.h>
-# include <wchar.h>
-
-# define COL_DEFAULT 1
-# define COL_ 2
-
-# include <string.h> //
 # include <stdio.h> //
-
-//utiliser <ncurses.h> (librairie graphique sur le terminal)
 
 # define TINY_CHUNCK_SIZE 128
 # define SMALL_CHUNCK_SIZE 4096
 
 # define MAX_SIZE UINT_MAX
+
+# define ALIGNMENT 16
 
 # define POOL_SIZE 4096
 
@@ -77,14 +70,10 @@ typedef struct			s_mem
     t_memzone			*tiny;
     t_memzone			*small;
     t_meta              *large;
-    SCREEN              *d_scr;
-    WINDOW              *d_win;
 }						t_mem;
 
 t_mem					g_memory;
 pthread_mutex_t			g_mutex;
-
-WINDOW                  *init_debug_display();
 
 void                    show_alloc_mem();
 void                    show_alloc_mem_ex(void);
@@ -92,8 +81,10 @@ void                    show_alloc_mem_ex(void);
 /*
 ** malloc.c             => 4 functions
 */
+size_t		            align_to_page(size_t size);
+
 void                    *malloc_large(size_t size);
-void                    *mymalloc(size_t size);
+void                    *malloc(size_t size);
 
 /*
 ** free.c               => 4 functions
@@ -102,12 +93,18 @@ int                     free_elem(t_memzone ***m_zone, size_t chunck_size, \
                             t_meta *elem);
 t_meta                  *ptr_in_zones(void *ptr, t_memzone ***m_zone, \
                             size_t *chunck_size);
-void                    myfree(void *ptr);
+void                    free(void *ptr);
 
 /*
 ** realloc.c            => ? functions
 */
-void					*myrealloc(void *ptr, size_t size);
+void					*realloc(void *ptr, size_t size);
+
+/*
+**
+*/
+void	*ft_memset(void *b, int c, size_t len);
+void                    *calloc(size_t nmemb, size_t size);
 
 /*
 ** heap.c               => 2 functions
@@ -146,4 +143,9 @@ void                    ft_print_unsigned_long_long(ull_64 n);
 int                     log_error(const char *str1, const char *str2);
 void                    *log_error_null(const char *str1, const char *str2);
 
+void    ft_print_uc_hex(unsigned char n);
+void    ft_print_unsigned_long_long(ull_64 n);
+void	ft_putendl(char const *s);
+void    ft_putstr_fd(short fd, char *str);
+void	ft_putstr(char const *s);
 #endif

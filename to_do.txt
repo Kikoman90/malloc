@@ -4,9 +4,7 @@ make debug : compiler la librairie malloc en mode debug (DEBUG_MALLOC := 1)
 TODO
 * alignement sur 16 bytes
 * thread safe
-* defragmentation
-* mode debug ? (ncurses)
-* show_alloc_mem_ex -> dump hexa de Jay
+* mode debug
 * calloc
 * completer les messages d'erreur
 * mettre a la norme
@@ -14,6 +12,8 @@ TODO
 TESTS
 * plusieurs zones tiny/small -> tester
 * free/malloc/realloc/calloc
-* testX de jfortin
+* testX de jfortin -> ca marche
 * essayer de lancer emacs et vim
 * mode debug
+
+gcc -L . -lft_malloc test/testX.c -I includes -o testX

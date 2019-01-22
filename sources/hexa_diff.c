@@ -5,7 +5,7 @@ char	*ft_itoa_addr(ull_64 value, char *s, ull_64 size, short print_ox)
 {
 	ull_64	res;
 	ull_64	j;
-	ull_64	symb;
+	// ull_64	symb;
 	ull_64	stock;
 	short	end;
 
@@ -26,7 +26,7 @@ char	*ft_itoa_addr(ull_64 value, char *s, ull_64 size, short print_ox)
 		j--;
 	}
 	end = (print_ox == 1) ? 2 : 0;
-	while (j >= end)
+	while (j >= (ull_64)end)
 	{
 		s[j] = ((res % 16) >= 10) ? ((res % 16 - 9) + '@') : ((res % 16) + '0');
 		res /= 16;
@@ -85,7 +85,7 @@ void	print_tab(char *tab[], size_t nb_string, ull_64 print_octets)
 	unsigned int	cpt;
 
 	cpt = 0;
-	if (nb_string == 2 && print_octets != -1)
+	if (nb_string == 2 && print_octets)// != -1)
 	{
 		ft_putstr(tab[0]);
 		ft_print_unsigned_long_long(print_octets);
@@ -147,7 +147,7 @@ void	print_ascii(unsigned char *buff, size_t *pos)
 
 void	tab_ascii(unsigned char *s, size_t *pos, size_t l_oct, unsigned char c)
 {
-	if (*pos != octetline)
+	if (*pos != l_oct)
 		s[*pos] = c;
 	else
 	{

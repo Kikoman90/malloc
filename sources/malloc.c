@@ -57,7 +57,7 @@ void		*malloc_large(size_t size)
 		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 	{
 		// munmap meta ??
-		return (log_error_null("//", strerror(errno))); //incomplete
+		return (log_error_null("error [malloc_large]:", strerror(errno)));
 	}
 	meta->size = size;
 	meta->used = TRUE;
@@ -69,15 +69,25 @@ void		*malloc_large(size_t size)
 	return (meta->addr);
 }
 
-/*
-** taille des zones doit etre un multiple de pagesize()
-*/
-void		*mymalloc(size_t size)
+size_t		align(size_t size)
 {
-	if (MALLOC_DEBUG && !g_memory.d_scr)
-		//init_debug_display();
-	if (!size || size > MAX_SIZE)
-		return (log_error_null("error [malloc] -> size is invalid", NULL)); //incomplete
+	//static size_t shift = get_align_shift();
+
+	return (((size + ALIGNMENT - 1) / ALIGNMENT) * ALIGNMENT);
+}
+
+size_t		align_to_page(size_t size)
+{
+	size_t	pg_size;
+
+	pg_size = getpagesize();
+	return (((size + pg_size - 1) / pg_size) * pg_size);
+}
+
+void		*malloc(size_t size)
+{
+	if (!size || (size = align(size)) > MAX_SIZE)
+		return (log_error_null("error [malloc]: size is invalid", NULL)); //incomplete
 	if (size <= TINY_CHUNCK_SIZE)
 		return (malloc_tiny_or_small(size, TINY_CHUNCK_SIZE, &g_memory.tiny)); //...
 	else if (size <= SMALL_CHUNCK_SIZE)
