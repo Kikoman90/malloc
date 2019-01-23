@@ -1,18 +1,16 @@
 #include "malloc.h"
 
-void	*ft_memset(void *b, int c, size_t len)
+void	*ft_memset(void *dest, int c, size_t len)
 {
 	size_t	i;
-	char	*buff;
 
-	buff = (char *)b;
 	i = 0;
 	while (i < len)
 	{
-		buff[i] = c;
+		((unsigned char*)dest)[i] = c;
 		i++;
 	}
-	return (buff);
+	return (dest);
 }
 
 void    *calloc(size_t nmemb, size_t size)
