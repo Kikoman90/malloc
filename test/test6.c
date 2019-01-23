@@ -13,13 +13,13 @@
 #include <sys/time.h>
 #include <stdint.h>
 
-#include "malloc.h"
+#include "../includes/malloc.h"
 
-#define ft_show_alloc_mem show_alloc_mem
-// void    *ft_malloc(size_t size);
-// void    ft_free(void *ptr);
-// void    ft_show_alloc_mem(void);
-// void    *ft_realloc(void *ptr, size_t size);
+#define ft_show_alloc_mem	show_alloc_mem
+#define ft_malloc			malloc
+#define ft_free				free
+#define ft_realloc			realloc
+
 #define TEST_LENGTH 1000
 #define MAX_LOCO 500
 #define NB_TESTS 1000
@@ -40,7 +40,6 @@ static void add_sodo(
 		struct test tab_ptr[TEST_LENGTH],
 		int nb_elmt)
 {
-	// printf("add_sodo\n");
 	int i = rand() % (MAX_LOCO);
 	tab_ptr[nb_elmt].c = i % 256;
 	tab_ptr[nb_elmt].ptr = malloc(i + 1);
@@ -49,7 +48,6 @@ static void add_sodo(
 		printf("malloc error. errno: %s\n", strerror(errno));
 		exit(0);
 	}
-	// printf("add_sodo: %p\n", tab_ptr[nb_elmt].ptr);
 	tab_ptr[nb_elmt].size = (size_t)i;
 	memset(tab_ptr[nb_elmt].ptr, tab_ptr[nb_elmt].c, i);
 	// ft_show_alloc_mem();
@@ -60,13 +58,11 @@ static void del_sodo(
 		struct test tab_ptr[TEST_LENGTH],
 		int nb_elmt)
 {
-	// printf("del_sodo\n");
 	int i;
 	size_t n = 0;
 	i = rand() % nb_elmt;
 	uint8_t *ptr = (uint8_t *)tab_ptr[i].ptr;
 	int index = 0;
-	// printf("\nchecking at address: %p\n", tab_ptr[i].ptr);
 	// ft_show_alloc_mem();
 	while (n < tab_ptr[i].size)
 	{
@@ -85,7 +81,6 @@ static void del_sodo(
 }
 void        sodo_test(void)
 {
-	// printf("sodo_test\n");
 	srand(GetTimeStamp());
 	struct test tab_ptr[TEST_LENGTH];
 	int nb_elmt = 0;
@@ -114,7 +109,7 @@ void        sodo_test(void)
 		free(tab_ptr[i].ptr);
 		i++;
 	}
-	// printf("alloc meme final\n");
+	// printf("alloc mem final\n");
 	// ft_show_alloc_mem();
 }
 static void real_sodo(
@@ -126,7 +121,6 @@ static void real_sodo(
 	i = rand() % *nb_elmt;
 	uint8_t *ptr = (uint8_t *)tab_ptr[i].ptr;
 	int index = 0;
-	// printf("\nchecking at address: %p\n", tab_ptr[i].ptr);
 	printf("tab_ptr[i].c = %d\n", tab_ptr[i].c);
 	while (n < tab_ptr[i].size)
 	{
@@ -144,7 +138,6 @@ static void real_sodo(
 		return ;
 	printf("reallocing %p of value %hhu and size %zu to new size %d\n", tab_ptr[i].ptr, tab_ptr[i].c, tab_ptr[i].size, x);
 	tab_ptr[i].ptr = realloc(tab_ptr[i].ptr, x);
-	//	printf("arg: %d %zu", x, (size_t)tab_ptr[i].ptr);
 	if (tab_ptr[i].ptr == NULL) {
 		printf("BAD REALLOC\n");
 		exit (1);
@@ -210,7 +203,7 @@ void        sodo_ft_realloc(void)
 }
 int         main(void)
 {
-	// printf("main\n");
+	srand(time(NULL));
 	sodo_test();
 	printf("that good\n");
 	sodo_ft_realloc();
