@@ -1,8 +1,8 @@
-// 42 header 
+// 42 header
 
 #include "malloc.h"
 
-int     destroy_meta(t_meta *meta, t_meta **head)
+int		destroy_meta(t_meta *meta, t_meta **head)
 {
 	if (meta->prev)
 		meta->prev->next = meta->next;
@@ -17,7 +17,7 @@ int     destroy_meta(t_meta *meta, t_meta **head)
 	return (TRUE);
 }
 
-t_meta  *insert_meta(t_metapool *pool, t_meta *meta, void *addr, size_t size)
+t_meta	*insert_meta(t_metapool *pool, t_meta *meta, void *addr, size_t size)
 {
 	t_meta	*insert;
 
@@ -31,7 +31,7 @@ t_meta  *insert_meta(t_metapool *pool, t_meta *meta, void *addr, size_t size)
 	return (insert);
 }
 
-t_meta  *metadip(t_metapool *metapool, void *addr, size_t size)
+t_meta	*metadip(t_metapool *metapool, void *addr, size_t size)
 {
 	t_metapool	*pool;
 	t_meta		*elem;
@@ -52,18 +52,18 @@ t_meta  *metadip(t_metapool *metapool, void *addr, size_t size)
 	return (elem);
 }
 
-t_meta  *remove_meta(t_meta *meta, t_metapool *pool)
+t_meta	*remove_meta(t_meta *meta, t_metapool *pool)
 {
 	t_meta	*prev;
 
 	prev = meta->prev;
 	if (meta->prev)
-        meta->prev->next = meta->next;
-    if (meta->next)
-        meta->next->prev = meta->prev;
+		meta->prev->next = meta->next;
+	if (meta->next)
+		meta->next->prev = meta->prev;
 	meta->prev = NULL;
-    meta->next = pool->pool;
-    pool->pool->prev = meta;
-    pool->pool = meta;
+	meta->next = pool->pool;
+	pool->pool->prev = meta;
+	pool->pool = meta;
 	return (prev);
 }

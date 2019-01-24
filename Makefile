@@ -8,7 +8,7 @@ HOSTLIB = libft_malloc_$(HOSTTYPE).so
 
 CC = gcc
 
-FLAGS = -Wall -Wextra -Werror -fPIC -D_THREAD_SAFE -Wno-deprecated-register -MMD -g -fvisibility=hidden
+FLAGS = -Wall -Wextra -Werror -fPIC -D_THREAD_SAFE -Wno-deprecated-register -MMD -g
 
 INC_DIR = includes
 

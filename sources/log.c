@@ -2,7 +2,7 @@
 
 #include "malloc.h"
 
-int	log_error(const char *str1, const char *str2)
+int		log_error(const char *str1, const char *str2)
 {
 	if (MALLOC_DEBUG)
 	{
@@ -27,4 +27,3 @@ void	*log_error_null(const char *str1, const char *str2)
 	}
 	return (NULL);
 }
-

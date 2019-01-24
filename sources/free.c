@@ -45,17 +45,19 @@ t_meta			*ptr_in_zones(void *ptr, t_memzone ***m_zone, \
 	void		*zone_addr;
 	short		type;
 	t_memzone	*tmp_zone;
+	size_t		zone_size;
 
 	type = TINY;
 	while (type < LARGE)
 	{
 		*m_zone = (type == TINY) ? &g_memory.tiny : &g_memory.small;
 		*chunck_size = (type == TINY) ? TINY_CHUNCK_SIZE : SMALL_CHUNCK_SIZE;
+		zone_size = align_to_page(MAX_ALLOC * *chunck_size);
 		tmp_zone = **m_zone;
 		while (tmp_zone)
 		{
 			zone_addr = (void*)(tmp_zone + 1);
-			if (ptr >= zone_addr && ptr < zone_addr + MAX_ALLOC * *chunck_size)
+			if (ptr >= zone_addr && ptr < zone_addr + zone_size)
 				return (search_meta(ptr, tmp_zone->meta));
 			*m_zone = &tmp_zone->next;
 			tmp_zone = tmp_zone->next;
@@ -66,7 +68,7 @@ t_meta			*ptr_in_zones(void *ptr, t_memzone ***m_zone, \
 	return (search_meta(ptr, g_memory.large));
 }
 
-void			__attribute__((visibility("default"))) free(void *ptr)
+void			free(void *ptr)
 {
 	t_meta		*meta;
 	t_memzone	**m_zone;

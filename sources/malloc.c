@@ -81,7 +81,7 @@ void		*malloc_unsafe(size_t size)
 	return (malloc_large(size));
 }
 
-void		__attribute__((visibility("default"))) *malloc(size_t size)
+void		*malloc(size_t size)
 {
 	void	*ptr;
 
