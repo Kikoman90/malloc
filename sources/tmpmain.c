@@ -1,13 +1,14 @@
 #include "malloc.h"
 
+/*
 void __attribute__((destructor)) end() {
 
     while (getchar() != 'a')
     {
         ;
     }
-  //  endwin();
 }
+*/
 
 int     main()
 {
@@ -39,6 +40,5 @@ int     main()
         i++;
     }
     show_alloc_mem_ex();
-
     return (0);
 }

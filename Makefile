@@ -8,7 +8,7 @@ HOSTLIB = libft_malloc_$(HOSTTYPE).so
 
 CC = gcc
 
-FLAGS = -Wall -Wextra -Werror -fPIC -D_THREAD_SAFE -Wno-deprecated-register -MMD
+FLAGS = -Wall -Wextra -Werror -fPIC -D_THREAD_SAFE -Wno-deprecated-register -MMD -g -fvisibility=hidden
 
 INC_DIR = includes
 
@@ -39,7 +39,7 @@ all:
 	@make $(NAME)
 
 $(NAME): $(OBJS)
-	@$(CC) -shared -o $(HOSTLIB) $^
+	@$(CC) $(FLAGS) -shared -o $(HOSTLIB) $^
 	@ln -fs $(HOSTLIB) $(NAME)
 	@echo "\033[35;1m[malloc] compilation success"
 

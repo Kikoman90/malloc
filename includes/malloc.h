@@ -81,9 +81,7 @@ void                    show_alloc_mem_ex(void);
 /*
 ** malloc.c             => 4 functions
 */
-size_t		            align_to_page(size_t size);
-
-void                    *malloc_large(size_t size);
+void                    *malloc_unsafe(size_t size);
 void                    *malloc(size_t size);
 
 /*
@@ -101,9 +99,9 @@ void                    free(void *ptr);
 void					*realloc(void *ptr, size_t size);
 
 /*
-**
+** calloc.c             => 2 functions
 */
-void	*ft_memset(void *b, int c, size_t len);
+void	                *ft_memset(void *b, int c, size_t len);
 void                    *calloc(size_t nmemb, size_t size);
 
 /*
@@ -126,16 +124,9 @@ t_meta                  *insert_meta(t_metapool *pool, t_meta *meta, \
 /*
 ** hexa_diff.c          => ? functions
 */
-void	                ft_putchar(char c);
 int                     hexadiff(void *addr1, void *addr2);
 void                    display_meta(t_meta *meta, size_t *nb_bytes, int display_mem);
 void                    print_tab(char *tab[], size_t nb_string, ull_64 print_octets);
-void                    ft_putendl(char const *s);
-void                    ft_putstr(char const *s);
-void                    ft_putchar(char c);
-int                     ft_strlen(char const *str);
-void                    ft_print_uc_hex(unsigned char c);
-void                    ft_print_unsigned_long_long(ull_64 n);
 
 /*
 ** log.c                => 2 functions
@@ -143,9 +134,18 @@ void                    ft_print_unsigned_long_long(ull_64 n);
 int                     log_error(const char *str1, const char *str2);
 void                    *log_error_null(const char *str1, const char *str2);
 
-void    ft_print_uc_hex(unsigned char n);
-void    ft_print_unsigned_long_long(ull_64 n);
-void	ft_putendl(char const *s);
-void    ft_putstr_fd(short fd, char *str);
-void	ft_putstr(char const *s);
+/*
+** tools.c              => 10 functions
+*/
+int                     ft_strlen(char const *str);
+void                    ft_putchar(char c);
+void                    ft_putchar_fd(short fd, char c);
+void	                ft_putstr(char const *s);
+void                    ft_putstr_fd(short fd, char const *str);
+void	                ft_putendl(char const *s);
+void                    ft_print_unsigned_long_long(ull_64 n);
+void                    ft_print_uc_hex(unsigned char n);
+size_t                  align(size_t size);
+size_t		            align_to_page(size_t size);
+
 #endif

@@ -1,9 +1,6 @@
-#include "malloc.h"
+// 42 header
 
-void	ft_putchar(char c)
-{
-	write(1, &c, 1);
-}
+#include "malloc.h"
 
 int     ft_strlen(char const *str)
 {
@@ -15,12 +12,22 @@ int     ft_strlen(char const *str)
     return (i);
 }
 
+void	ft_putchar(char c)
+{
+	write(1, &c, 1);
+}
+
+void    ft_putchar_fd(short fd, char c)
+{
+    write(fd, &c, 1);
+}
+
 void	ft_putstr(char const *s)
 {
 	write(1, s, ft_strlen(s));
 }
 
-void    ft_putstr_fd(short fd, char *str)
+void    ft_putstr_fd(short fd, char const *str)
 {
     write(fd, str, ft_strlen(str));
 }
@@ -46,4 +53,18 @@ void    ft_print_uc_hex(unsigned char n)
 		ft_putchar((n % 16 - 9)  + '@');
 	else 
     	ft_putchar(n % 16 + '0');
+}
+
+size_t  align(size_t size)
+{
+	//static size_t shift = get_align_shift();
+	return (((size + ALIGNMENT - 1) / ALIGNMENT) * ALIGNMENT);
+}
+
+size_t  align_to_page(size_t size)
+{
+	size_t	pg_size;
+
+	pg_size = getpagesize();
+	return (((size + pg_size - 1) / pg_size) * pg_size);
 }

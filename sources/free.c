@@ -10,18 +10,16 @@ int				free_elem(t_memzone ***m_zone, size_t chunck_size, \
 	{
 		elem->size += elem->next->size;
 		remove_meta(elem->next, (**m_zone)->pool);
-		// elem = merge_chuncks(elem, elem->next, (**m_zone)->pool);
 	}
 	if (elem->prev && !elem->prev->used)
 	{
 		elem->prev->size += elem->size;
 		elem = remove_meta(elem, (**m_zone)->pool);
-		// elem = merge_chuncks(elem->prev, elem, (**m_zone)->pool);
 	}
 	if (!elem->prev && !elem->next)
 	{
 		if (!destroy_memzone(**m_zone, chunck_size * MAX_ALLOC))
-			return (FALSE); // check
+			return (FALSE);
 		**m_zone = NULL;
 	}
 	return (TRUE);
@@ -68,24 +66,31 @@ t_meta			*ptr_in_zones(void *ptr, t_memzone ***m_zone, \
 	return (search_meta(ptr, g_memory.large));
 }
 
-void			free(void *ptr)
+void			__attribute__((visibility("default"))) free(void *ptr)
 {
 	t_meta		*meta;
 	t_memzone	**m_zone;
 	size_t		chunck_size;
 
-	if (!ptr)
+	if (pthread_mutex_lock(&g_mutex))
 	{
-		log_error("error [free] -> null pointer", NULL);
+		log_error("error [mutex_lock]: ", strerror(errno));
 		return ;
 	}
-	if (!(meta = ptr_in_zones(ptr, &m_zone, &chunck_size)))
-		log_error("error [free]: invalid pointer", NULL); // incomplete
+	if (!ptr)
+		log_error("error [free]: null pointer", NULL);
 	else
 	{
-		if (!m_zone && !destroy_meta(meta, &g_memory.large))
-			log_error("error [free] -> destroy_meta()", NULL); // incomplete
-		else if (m_zone && !free_elem(&m_zone, chunck_size, meta))
-			log_error("error [free] -> merge_chuncks()", NULL); // incomplete
+		if (!(meta = ptr_in_zones(ptr, &m_zone, &chunck_size)))
+			log_error("error [free]: invalid pointer", NULL);
+		else
+		{
+			if (!m_zone && !destroy_meta(meta, &g_memory.large))
+				log_error("error [free]", NULL);
+			else if (m_zone && !free_elem(&m_zone, chunck_size, meta))
+				log_error("error [free]", NULL);
+		}
 	}
+	if (pthread_mutex_unlock(&g_mutex))
+		log_error("error [mutex_unlock]: ", strerror(errno));
 }

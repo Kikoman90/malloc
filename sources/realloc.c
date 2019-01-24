@@ -25,7 +25,7 @@ void    *realloc_large(t_meta *meta, size_t size)
 	// le realloc large va desallouer la zone pointee apres avoir mempcy son contenu dans la nouvelle zone allouee
     if (size)
     {
-        if (!(ptr = ft_memcpy(malloc(size), meta->addr, \
+        if (!(ptr = ft_memcpy(malloc_unsafe(size), meta->addr, \
             (meta->size < size) ? meta->size : size)))
             return (log_error_null("error [realloc]: malloc has failed", NULL));
     }
@@ -53,14 +53,14 @@ void    *realloc_tiny_or_small(t_memzone ***m_zone, size_t chunck_size, \
         || size > chunck_size || (diff > 0 && (!meta->next || meta->next->used\
         || meta->next->size < (size_t)diff)))
     {
-        if (size && !(ptr = ft_memcpy(malloc(size), meta->addr, \
+        if (size && !(ptr = ft_memcpy(malloc_unsafe(size), meta->addr, \
             (meta->size < size) ? meta->size : size)))
             return (log_error_null("error [realloc]: malloc has failed", NULL));
         if (!free_elem(m_zone, chunck_size, meta))
             return (log_error_null("error [realloc]: free has failed", NULL));
         return (ptr);
     }
-	// CAS 2 : soit la diff est negative, soit elle est positive.
+	// CAS 2
 	// SI CAS 1 est faux et que la diff est positive, alors il existe forcement un maillon libre avec une taille suffisante
     meta->size += diff;
     if (meta->next && !meta->next->used && (long)meta->next->size >= diff)
@@ -79,19 +79,24 @@ void    *realloc_tiny_or_small(t_memzone ***m_zone, size_t chunck_size, \
     return (meta->addr);
 }
 
-void    *realloc(void *ptr, size_t size)
+void    __attribute__((visibility("default"))) *realloc(void *ptr, size_t size)
 {
     t_meta      *meta;
     t_memzone   **m_zone;
     size_t      chunck_size;
 
+    if (pthread_mutex_lock(&g_mutex))
+		return (log_error_null("error [mutex_lock]: ", strerror(errno)));
     if (!ptr)
-        return (malloc(size));
-    if (size > MAX_SIZE)
-        return log_error_null("error [realloc]: size is invalid", NULL);
-    if (!(meta = ptr_in_zones(ptr, &m_zone, &chunck_size)))
-        return (log_error_null("error [realloc]: ptr is invalid", NULL));
-    if (m_zone)
-        return (realloc_tiny_or_small(&m_zone, chunck_size, meta, size));
-    return (realloc_large(meta, size));
+        ptr = malloc_unsafe(size);
+    else if (size > MAX_SIZE)
+        ptr = log_error_null("error [realloc]: size is invalid", NULL);
+    else if (!(meta = ptr_in_zones(ptr, &m_zone, &chunck_size)))
+        ptr = log_error_null("error [realloc]: ptr is invalid", NULL);
+    else
+        ptr = (m_zone) ? realloc_tiny_or_small(&m_zone, chunck_size, \
+            meta, size) : realloc_large(meta, size);
+    if (pthread_mutex_unlock(&g_mutex))
+		return (log_error_null("error [mutex_unlock]: ", strerror(errno)));
+    return (ptr);
 }

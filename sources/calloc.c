@@ -13,11 +13,15 @@ void	*ft_memset(void *dest, int c, size_t len)
 	return (dest);
 }
 
-void    *calloc(size_t nmemb, size_t size)
+void    __attribute__((visibility("default"))) *calloc(size_t nmemb, size_t size)
 {
     void	*ptr;
 
-    if ((ptr = malloc(nmemb * size)))
+	if (pthread_mutex_lock(&g_mutex))
+		return (log_error_null("error [mutex_lock]: ", strerror(errno)));
+    if ((ptr = malloc_unsafe(nmemb * size)))
         ft_memset(ptr, 0, nmemb * size);
+	if (pthread_mutex_unlock(&g_mutex))
+		return (log_error_null("error [mutex_unlock]: ", strerror(errno)));
     return (ptr);
 }

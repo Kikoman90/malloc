@@ -13,7 +13,7 @@ static void	*new_alloc(t_meta *elem, t_memzone *zone, size_t size)
 	{
 		if (!(insert = insert_meta(zone->pool, elem, \
 			(void*)((char*)elem->addr + size), elem->size - size)))
-			return (NULL); // check
+			return (NULL);
 		insert->used = FALSE;
 	}
 	elem->size = size;
@@ -40,24 +40,25 @@ static void	*malloc_tiny_or_small(size_t size, size_t chunck_size, \
 		zone = zone->next;
 	}
 	if (!(zone = create_memzone(chunck_size)))
-		return (NULL); // check
+		return (NULL);
 	zone->next = *m_zone;
 	*m_zone = zone;
-	return (new_alloc(zone->meta, zone, size)); // check
+	return (new_alloc(zone->meta, zone, size));
 }
 
-void		*malloc_large(size_t size)
+static void	*malloc_large(size_t size)
 {
 	t_meta	*meta;
 
 	if ((meta = mmap(0, sizeof(t_meta), PROT_READ | PROT_WRITE, \
 		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-		return (log_error_null("//", strerror(errno))); //incomplete
+		return (log_error_null("error [malloc_large]: ", strerror(errno)));
 	if ((meta->addr = mmap(0, size, PROT_READ | PROT_WRITE, \
 		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 	{
-		// munmap meta ??
-		return (log_error_null("error [malloc_large]:", strerror(errno)));
+		if (munmap(meta, sizeof(t_meta)) == -1)
+			log_error_null("error [malloc_large]: ", strerror(errno));
+		return (log_error_null("error [malloc_large]: ", strerror(errno)));
 	}
 	meta->size = size;
 	meta->used = TRUE;
@@ -69,28 +70,25 @@ void		*malloc_large(size_t size)
 	return (meta->addr);
 }
 
-size_t		align(size_t size)
-{
-	//static size_t shift = get_align_shift();
-
-	return (((size + ALIGNMENT - 1) / ALIGNMENT) * ALIGNMENT);
-}
-
-size_t		align_to_page(size_t size)
-{
-	size_t	pg_size;
-
-	pg_size = getpagesize();
-	return (((size + pg_size - 1) / pg_size) * pg_size);
-}
-
-void		*malloc(size_t size)
+void		*malloc_unsafe(size_t size)
 {
 	if (!size || (size = align(size)) > MAX_SIZE)
-		return (log_error_null("error [malloc]: size is invalid", NULL)); //incomplete
+		return (log_error_null("error [malloc]: size is invalid", NULL));
 	if (size <= TINY_CHUNCK_SIZE)
-		return (malloc_tiny_or_small(size, TINY_CHUNCK_SIZE, &g_memory.tiny)); //...
-	else if (size <= SMALL_CHUNCK_SIZE)
-		return (malloc_tiny_or_small(size, SMALL_CHUNCK_SIZE, &g_memory.small)); //...
-	return (malloc_large(size)); //...
+		return (malloc_tiny_or_small(size, TINY_CHUNCK_SIZE, &g_memory.tiny));
+	if (size <= SMALL_CHUNCK_SIZE)
+		return (malloc_tiny_or_small(size, SMALL_CHUNCK_SIZE, &g_memory.small));
+	return (malloc_large(size));
+}
+
+void		__attribute__((visibility("default"))) *malloc(size_t size)
+{
+	void	*ptr;
+
+	if (pthread_mutex_lock(&g_mutex))
+		return (log_error_null("error [mutex_lock]: ", strerror(errno)));
+	ptr = malloc_unsafe(size);
+	if (pthread_mutex_unlock(&g_mutex))
+		return (log_error_null("error [mutex_unlock]: ", strerror(errno)));
+	return (ptr);
 }

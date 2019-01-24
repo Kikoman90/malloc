@@ -2,17 +2,6 @@
 
 #include "malloc.h"
 
-/*
-** put a t_meta back in the pool
-void    metathrow(t_metapool *pool, t_meta *elem)
-{
-	elem->prev = NULL;
-	elem->next = pool->pool;
-	pool->pool->prev = elem;
-	pool->pool = elem;
-}
-*/
-
 int     destroy_meta(t_meta *meta, t_meta **head)
 {
 	if (meta->prev)
@@ -22,9 +11,9 @@ int     destroy_meta(t_meta *meta, t_meta **head)
 	if (meta->next)
 		meta->next->prev = meta->prev;
 	if (munmap(meta->addr, meta->size) == -1)
-		return (log_error("error [destroy_meta]: ", strerror(errno))); // incomplete
+		return (log_error("error [destroy_meta]: ", strerror(errno)));
 	if (munmap(meta, sizeof(t_meta)) == -1)
-		return (log_error("error [destroy_meta]: ", strerror(errno))); // incomplete
+		return (log_error("error [destroy_meta]: ", strerror(errno)));
 	return (TRUE);
 }
 
@@ -33,7 +22,7 @@ t_meta  *insert_meta(t_metapool *pool, t_meta *meta, void *addr, size_t size)
 	t_meta	*insert;
 
 	if (!(insert = metadip(pool, addr, size)))
-		return (NULL); // check
+		return (NULL);
 	if (meta->next)
 		meta->next->prev = insert;
 	insert->next = meta->next;
@@ -50,7 +39,7 @@ t_meta  *metadip(t_metapool *metapool, void *addr, size_t size)
 	if (!metapool || !metapool->pool)
 	{
 		if (!(pool = create_metapool(POOL_SIZE)))
-			return (NULL); // check
+			return (NULL);
 		pool->next = metapool;
 		metapool = pool;
 	}

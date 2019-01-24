@@ -186,7 +186,7 @@ int		show_octet(t_meta *list, size_t *pos, size_t octetline)
 	return (total);
 }
 
-void	show_alloc_mem(void)
+void	__attribute__((visibility("default"))) show_alloc_mem(void)
 {
 	t_memzone	*m_zone;
 	short		type;
@@ -215,19 +215,20 @@ void	show_alloc_mem(void)
 	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
 }
 
-void	prt_header_hexadump(short type)
+void	prt_header_hexadump(short type, void *address)
 {
 	if (type == TINY || type == SMALL)
-		ft_putstr((type == TINY) ? "\nTINY :\n" : "\nSMALL : \n");
+		ft_putstr((type == TINY) ? "\nTINY : " : "\nSMALL : ");
 	else
-		ft_putstr("\nLARGE :\n");
+		ft_putstr("\nLARGE : ");
+	print_addr(address, TRUE);
 	ft_putstr("Offset address |   00  01  02  03  04  05  06  ");
 	ft_putstr("07  08  09  0A  0B  0C  0D  0E  0F    |      ASCII       |\n");
 	ft_putstr("-----------------------------------------------------");
 	ft_putstr("----------------------------------------------------\n");
 }
 
-void	show_alloc_mem_ex(void)
+void	__attribute__((visibility("default"))) show_alloc_mem_ex(void)
 {
 	t_memzone	*m_zone;
 	short		type;
@@ -240,17 +241,19 @@ void	show_alloc_mem_ex(void)
 	{
 		m_zone = (type == TINY) ? g_memory.tiny : g_memory.small;
 		cpt = 0;
-		prt_header_hexadump(type);
 		while (m_zone)
 		{
+			prt_header_hexadump(type, m_zone);
 			total += show_octet(m_zone->meta, &cpt, 15);
 			m_zone = m_zone->next;
 		}
 		type++;
 	}
-	prt_header_hexadump(type);
 	cpt = 0;
 	if (g_memory.large)
+	{
+		prt_header_hexadump(type, g_memory.large);
 		total += show_octet(g_memory.large, &cpt, 15);
+	}
 	print_tab((char *[2]){"Total : \033[36m", " \033[0moctets"}, 2, total);
 }
