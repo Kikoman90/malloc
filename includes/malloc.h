@@ -1,4 +1,3 @@
-// header 42
 
 #ifndef MALLOC_H
 # define MALLOC_H
@@ -12,7 +11,7 @@
 # include <errno.h>
 # include <string.h>
 
-# include <stdio.h> //
+# include <stdio.h>
 
 # define TINY_CHUNCK_SIZE 128
 # define SMALL_CHUNCK_SIZE 4096
@@ -70,12 +69,12 @@ t_mem					g_memory;
 pthread_mutex_t			g_mutex;
 
 /*
-** show_alloc_mem.c     => ? functions
+** show_alloc_mem.c     => 2 functions
 */
 void					show_alloc_mem();
 
 /*
-** show_alloc_mem_ex.c  => ? functions
+** show_alloc_mem_ex.c  => 4 functions
 */
 void					show_alloc_mem_ex(void);
 
@@ -123,13 +122,15 @@ t_meta					*insert_meta(t_metapool *pool, t_meta *meta, \
 							void *addr, size_t size);
 
 /*
-** hexa_diff.c          => ? functions
+** hexa_diff.c          => 1 functions
 */
 int						hexadiff(void *addr1, void *addr2);
+
+/*
+** display.c			=> 2 functions
+*/
 void					display_meta(t_meta *meta, size_t *nb_bytes, \
 							int display_mem);
-void					print_tab(char *tab[], size_t nb_string, \
-							ull_64 print_octets);
 
 /*
 ** log.c                => 2 functions
@@ -138,13 +139,17 @@ int						log_error(const char *str1, const char *str2);
 void					*log_error_null(const char *str1, const char *str2);
 
 /*
-** tools.c              => 10 functions
+** print_tools.c		=> 5 functions
 */
 int						ft_strlen(char const *str);
 void					ft_putchar(char c);
 void					ft_putchar_fd(short fd, char c);
 void					ft_putstr(char const *s);
 void					ft_putstr_fd(short fd, char const *str);
+
+/*
+** tools.c				=> 5 functions
+*/
 void					ft_putendl(char const *s);
 void					ft_print_unsigned_long_long(ull_64 n);
 void					ft_print_uc_hex(unsigned char n);
@@ -162,7 +167,7 @@ void					print_tab(char *tab[], size_t nb_string, \
 							ull_64 print_octets);
 
 /*
-** ft_itoa_addr_hex.c   => 1 functions
+** ft_itoa_addr_hex.c   => 2 functions
 */
 char					*ft_itoa_addr(ull_64 value, char *s, \
 							ull_64 size, short print_ox);
