@@ -73,6 +73,7 @@ void		*realloc(void *ptr, size_t size)
 	t_memzone	**m_zone;
 	size_t		chunck_size;
 
+	//fprintf(stderr, "realloc(ptr, %zu)\n", size);
 	if (pthread_mutex_lock(&g_mutex))
 		return (log_error_null("error [mutex_lock]: ", strerror(errno)));
 	if (!ptr)

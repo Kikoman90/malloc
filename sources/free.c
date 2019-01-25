@@ -18,9 +18,8 @@ int				free_elem(t_memzone ***m_zone, size_t chunck_size, \
 	}
 	if (!elem->prev && !elem->next)
 	{
-		if (!destroy_memzone(**m_zone, chunck_size * MAX_ALLOC))
+		if (!destroy_memzone(**m_zone, *m_zone, chunck_size * MAX_ALLOC))
 			return (FALSE);
-		**m_zone = NULL;
 	}
 	return (TRUE);
 }

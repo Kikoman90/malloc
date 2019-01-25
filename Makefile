@@ -8,7 +8,11 @@ HOSTLIB = libft_malloc_$(HOSTTYPE).so
 
 CC = gcc
 
-FLAGS = -Wall -Wextra -Werror -fPIC -D_THREAD_SAFE -Wno-deprecated-register -MMD -g
+FLAGS = -Wall -Wextra -Werror -fPIC -D_THREAD_SAFE -Wno-deprecated-register -MMD
+
+ifeq ($(DEBUG),yes)
+	FLAGS += -g -DMALLOC_DEBUG #-fsanitize=address
+endif
 
 INC_DIR = includes
 
@@ -20,13 +24,17 @@ SRCS = 	malloc.c \
 		calloc.c \
 		realloc.c \
 		free.c \
-		hexa_diff.c \
-		tools.c \
-		display.c \
 		meta.c \
-		log.c \
 		heap.c \
 		hexa_diff.c \
+		ft_itoa_addr_hex.c \
+		show_alloc_tools.c \
+		show_alloc_mem.c \
+		show_alloc_mem_ex.c \
+		tools.c \
+		print_tools.c \
+		display.c \
+		log.c \
 
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:.c=.o))
 
@@ -34,6 +42,9 @@ DPDS = $(addprefix $(OBJS_DIR)/, $(SRCS:.c=.d))
 
 opti:
 	@make -j all
+
+debug:
+	@make -opti DEBUG=yes
 
 all:
 	@make $(NAME)

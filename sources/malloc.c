@@ -72,8 +72,13 @@ static void	*malloc_large(size_t size)
 
 void		*malloc_unsafe(size_t size)
 {
-	if (!size || (size = align(size)) > MAX_SIZE)
+	if ((size = align(size)) > MAX_SIZE)
+	{
 		return (log_error_null("error [malloc]: size is invalid", NULL));
+	//		return (log_error_null("size is 0", NULL));
+	}
+	if (!size)
+		size = 16;
 	if (size <= TINY_CHUNCK_SIZE)
 		return (malloc_tiny_or_small(size, TINY_CHUNCK_SIZE, &g_memory.tiny));
 	if (size <= SMALL_CHUNCK_SIZE)

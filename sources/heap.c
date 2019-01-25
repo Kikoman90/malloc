@@ -32,6 +32,7 @@ t_memzone	*create_memzone(size_t chunck_size)
 	size_t		size;
 
 	size = align_to_page(chunck_size * MAX_ALLOC);
+	//printf("size IS %zu\n", size);
 	if ((zone = mmap(0, size, PROT_READ | PROT_WRITE, \
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 		return (log_error_null("error [create_memzone]:", strerror(errno)));
@@ -60,11 +61,13 @@ int			destroy_metapools(t_metapool *pool)
 	return (TRUE);
 }
 
-int			destroy_memzone(t_memzone *zone, size_t size)
+int			destroy_memzone(t_memzone *zone, t_memzone **head, size_t size)
 {
 	zone->meta = NULL;
 	if (zone->prev)
 		zone->prev->next = zone->next;
+	else
+		*head = zone->next;
 	if (zone->next)
 		zone->next->prev = zone->prev;
 	if (!destroy_metapools(zone->pool))

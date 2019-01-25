@@ -1,9 +1,11 @@
+// header 42
 
 #ifndef MALLOC_H
 # define MALLOC_H
 
 # include <unistd.h>
 # include <stdlib.h>
+# include <stdint.h>
 # include <limits.h>
 # include <sys/mman.h>
 # include <pthread.h>
@@ -11,7 +13,7 @@
 # include <errno.h>
 # include <string.h>
 
-# include <stdio.h>
+# include <stdio.h> //
 
 # define TINY_CHUNCK_SIZE 128
 # define SMALL_CHUNCK_SIZE 4096
@@ -22,7 +24,7 @@
 
 # define POOL_SIZE 4096
 
-# define MAX_ALLOC 16
+# define MAX_ALLOC 32
 
 # define TRUE 1
 # define FALSE 0
@@ -31,7 +33,11 @@
 # define SMALL 2
 # define LARGE 3
 
-# define MALLOC_DEBUG 1
+# ifndef MALLOC_DEBUG
+#  define MALLOC_DEBUG 0
+# endif
+
+typedef uint64_t		t_ull_64;
 
 typedef struct			s_meta
 {
@@ -99,8 +105,9 @@ void					free(void *ptr);
 void					*realloc(void *ptr, size_t size);
 
 /*
-** calloc.c				=> 2 functions
+** calloc.c				=> 3 functions
 */
+void					*ft_memcpy(void *dest, void *src, size_t len);
 void					*ft_memset(void *b, int c, size_t len);
 void					*calloc(size_t nmemb, size_t size);
 
@@ -110,7 +117,8 @@ void					*calloc(size_t nmemb, size_t size);
 t_metapool				*create_metapool(size_t nb_meta);
 t_memzone				*create_memzone(size_t chunck_size);
 int						destroy_metapools(t_metapool *pool);
-int						destroy_memzone(t_memzone *zone, size_t size);
+int						destroy_memzone(t_memzone *zone, t_memzone **head, \
+							size_t size);
 
 /*
 ** meta.c               => 4 functions
@@ -131,6 +139,8 @@ int						hexadiff(void *addr1, void *addr2);
 */
 void					display_meta(t_meta *meta, size_t *nb_bytes, \
 							int display_mem);
+void					print_tab(char *tab[], size_t nb_string, \
+							t_ull_64 print_octets);
 
 /*
 ** log.c                => 2 functions
@@ -151,7 +161,7 @@ void					ft_putstr_fd(short fd, char const *str);
 ** tools.c				=> 5 functions
 */
 void					ft_putendl(char const *s);
-void					ft_print_unsigned_long_long(ull_64 n);
+void					ft_print_unsigned_long_long(t_ull_64 n);
 void					ft_print_uc_hex(unsigned char n);
 size_t					align(size_t size);
 size_t					align_to_page(size_t size);
@@ -164,12 +174,12 @@ void					print_ascii(unsigned char *buff, size_t *pos);
 void					tab_ascii(unsigned char *s, size_t *pos, \
 							size_t l_oct, unsigned char c);
 void					print_tab(char *tab[], size_t nb_string, \
-							ull_64 print_octets);
+							t_ull_64 print_octets);
 
 /*
 ** ft_itoa_addr_hex.c   => 2 functions
 */
-char					*ft_itoa_addr(ull_64 value, char *s, \
-							ull_64 size, short print_ox);
+char					*ft_itoa_addr(t_ull_64 value, char *s, \
+							t_ull_64 size, short print_ox);
 
 #endif

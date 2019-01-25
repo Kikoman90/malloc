@@ -1,6 +1,7 @@
 #include "malloc.h"
 
-ull_64	get_value(ull_64 *j, ull_64 size, ull_64 *value, ull_64 *stock)
+t_ull_64	get_value(t_ull_64 *j, t_ull_64 size, t_ull_64 *value, \
+	t_ull_64 *stock)
 {
 	*j = size - 1;
 	*stock = 0;
@@ -15,14 +16,15 @@ ull_64	get_value(ull_64 *j, ull_64 size, ull_64 *value, ull_64 *stock)
 	return (*value);
 }
 
-char	*ft_itoa_addr(ull_64 value, char *s, ull_64 size, short print_ox)
+char		*ft_itoa_addr(t_ull_64 value, char *s, t_ull_64 size, \
+	short print_ox)
 {
-	ull_64	res;
-	ull_64	j;
-	ull_64	stock;
-	ull_64	end;
+	t_ull_64	res;
+	t_ull_64	j;
+	t_ull_64	stock;
+	t_ull_64	end;
 
-	if ((res = get_value(&j, size, &value, &stock)) == (ull_64)-1)
+	if ((res = get_value(&j, size, &value, &stock)) == (t_ull_64)-1)
 		return (NULL);
 	if (stock != 0)
 		s[j--] = stock + '0';
