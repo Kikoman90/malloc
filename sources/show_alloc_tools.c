@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   show_alloc_tools.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fsidler <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/02/04 10:24:40 by fsidler           #+#    #+#             */
+/*   Updated: 2019/02/04 10:25:33 by fsidler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "malloc.h"
 
 void	print_addr(void *addr, short ret_line)
@@ -47,7 +59,7 @@ void	print_tab(char *tab[], size_t nb_string, t_ull_64 print_octets)
 	unsigned int	cpt;
 
 	cpt = 0;
-	if (nb_string == 2 && print_octets != 0)// && print_octets != -1)
+	if (nb_string == 2 && print_octets != 0)
 	{
 		ft_putstr(tab[0]);
 		ft_print_unsigned_long_long(print_octets);

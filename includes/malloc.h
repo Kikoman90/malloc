@@ -1,4 +1,14 @@
-// header 42
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   malloc.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fsidler <fsidler@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/02/04 10:26:02 by fsidler           #+#    #+#             */
+/*   Updated: 2019/02/13 20:08:17 by fsidler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #ifndef MALLOC_H
 # define MALLOC_H
@@ -13,8 +23,6 @@
 # include <errno.h>
 # include <string.h>
 
-# include <stdio.h> //
-
 # define TINY_CHUNCK_SIZE 128
 # define SMALL_CHUNCK_SIZE 4096
 
@@ -22,9 +30,9 @@
 
 # define ALIGNMENT 16
 
-# define POOL_SIZE 4096
+# define SIZE_POOL 128
 
-# define MAX_ALLOC 32
+# define MAX_ALLOC 128
 
 # define TRUE 1
 # define FALSE 0
@@ -125,22 +133,15 @@ int						destroy_memzone(t_memzone *zone, t_memzone **head, \
 */
 int						destroy_meta(t_meta *meta, t_meta **head);
 t_meta					*remove_meta(t_meta *meta, t_metapool *pool);
-t_meta					*metadip(t_metapool *metapool, void *addr, size_t size);
-t_meta					*insert_meta(t_metapool *pool, t_meta *meta, \
+t_meta					*metadip(t_metapool **metapool, void *addr, \
+							size_t size);
+t_meta					*insert_meta(t_metapool **pool, t_meta *meta, \
 							void *addr, size_t size);
 
 /*
 ** hexa_diff.c          => 1 functions
 */
 int						hexadiff(void *addr1, void *addr2);
-
-/*
-** display.c			=> 2 functions
-*/
-void					display_meta(t_meta *meta, size_t *nb_bytes, \
-							int display_mem);
-void					print_tab(char *tab[], size_t nb_string, \
-							t_ull_64 print_octets);
 
 /*
 ** log.c                => 2 functions

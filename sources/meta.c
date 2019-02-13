@@ -1,4 +1,14 @@
-// 42 header
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   meta.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fsidler <fsidler@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/02/04 10:24:15 by fsidler           #+#    #+#             */
+/*   Updated: 2019/02/13 20:01:43 by fsidler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "malloc.h"
 
@@ -17,7 +27,7 @@ int		destroy_meta(t_meta *meta, t_meta **head)
 	return (TRUE);
 }
 
-t_meta	*insert_meta(t_metapool *pool, t_meta *meta, void *addr, size_t size)
+t_meta	*insert_meta(t_metapool **pool, t_meta *meta, void *addr, size_t size)
 {
 	t_meta	*insert;
 
@@ -31,21 +41,24 @@ t_meta	*insert_meta(t_metapool *pool, t_meta *meta, void *addr, size_t size)
 	return (insert);
 }
 
-t_meta	*metadip(t_metapool *metapool, void *addr, size_t size)
+t_meta	*metadip(t_metapool **metapool, void *addr, size_t size)
 {
 	t_metapool	*pool;
 	t_meta		*elem;
 
-	if (!metapool || !metapool->pool)
+	if (!metapool)
+		return (NULL);
+	if (!(*metapool) || !((*metapool)->pool))
 	{
-		if (!(pool = create_metapool(POOL_SIZE)))
+		if (!(pool = create_metapool(SIZE_POOL)))
 			return (NULL);
-		pool->next = metapool;
-		metapool = pool;
+		pool->next = *metapool;
+		*metapool = pool;
 	}
-	pool = metapool;
+	pool = *metapool;
 	elem = pool->pool;
-	elem->next->prev = NULL;
+	if (elem->next)
+		elem->next->prev = NULL;
 	pool->pool = elem->next;
 	elem->addr = addr;
 	elem->size = size;

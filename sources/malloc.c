@@ -1,4 +1,14 @@
-// header 42
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   malloc.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fsidler <fsidler@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/02/04 10:24:07 by fsidler           #+#    #+#             */
+/*   Updated: 2019/02/13 19:23:51 by fsidler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "malloc.h"
 
@@ -11,7 +21,7 @@ static void	*new_alloc(t_meta *elem, t_memzone *zone, size_t size)
 
 	if (elem->size > size)
 	{
-		if (!(insert = insert_meta(zone->pool, elem, \
+		if (!(insert = insert_meta(&zone->pool, elem, \
 			(void*)((char*)elem->addr + size), elem->size - size)))
 			return (NULL);
 		insert->used = FALSE;

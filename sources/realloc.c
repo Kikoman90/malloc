@@ -1,4 +1,14 @@
-// 42 header
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   realloc.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fsidler <fsidler@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/02/04 10:24:26 by fsidler           #+#    #+#             */
+/*   Updated: 2019/02/13 18:01:31 by fsidler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "malloc.h"
 
@@ -35,7 +45,7 @@ static void	*extend_mem(t_memzone ***m_zone, t_meta *meta, long diff)
 			remove_meta(meta->next, (**m_zone)->pool);
 		return (meta->addr);
 	}
-	if (!(insert = insert_meta((**m_zone)->pool, meta, \
+	if (!(insert = insert_meta(&(**m_zone)->pool, meta, \
 		(void*)((char*)meta->addr + meta->size), (size_t)(-diff))))
 	{
 		return (log_error_null(\
@@ -73,7 +83,6 @@ void		*realloc(void *ptr, size_t size)
 	t_memzone	**m_zone;
 	size_t		chunck_size;
 
-	//fprintf(stderr, "realloc(ptr, %zu)\n", size);
 	if (pthread_mutex_lock(&g_mutex))
 		return (log_error_null("error [mutex_lock]: ", strerror(errno)));
 	if (!ptr)

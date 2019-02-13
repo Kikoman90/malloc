@@ -8,7 +8,7 @@ HOSTLIB = libft_malloc_$(HOSTTYPE).so
 
 CC = gcc
 
-FLAGS = -Wall -Wextra -Werror -fPIC -D_THREAD_SAFE -Wno-deprecated-register -MMD
+FLAGS = -Wall -Wextra -Werror -g -fPIC -D_THREAD_SAFE -Wno-deprecated-register -MMD
 
 ifeq ($(DEBUG),yes)
 	FLAGS += -g -DMALLOC_DEBUG #-fsanitize=address
@@ -33,7 +33,6 @@ SRCS = 	malloc.c \
 		show_alloc_mem_ex.c \
 		tools.c \
 		print_tools.c \
-		display.c \
 		log.c \
 
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:.c=.o))

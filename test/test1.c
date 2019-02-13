@@ -2,7 +2,7 @@
 
 int	main()
 {
-	int	i;
+	int		i;
 	char	*addr;
 
 	i = 0;
